@@ -2,13 +2,44 @@ import requests
 import requests.auth
 import base64
 import time
-import json
-import binascii
 from hashlib import sha256
 from urllib.parse import urlparse
 from decimal import Decimal as dec
+from decimal import getcontext, Context, Overflow, DivisionByZero, InvalidOperation, ROUND_HALF_EVEN
+import json
 
-class Pair():
+getcontext()
+Context(prec=8, rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
+        capitals=1, clamp=0, flags=[], traps=[Overflow, DivisionByZero,
+        InvalidOperation])
+
+def percentage_in(individual, whole):
+    return (dec(list(whole).count(individual) / dec(len(whole)))) * 100
+
+def percentage(percent, whole):
+    return dec(percent) * dec(whole) / 100
+
+class Order:
+    def __init__(self):
+        self.id = None
+        self.market_amount = None
+        self.market_amount_remaining = None
+        self.created_at = None
+        self.price = None
+        self.order_type = None
+        self.market_id = None
+        self.open = None
+        self.trades = None
+
+class PairOrders:
+    def __init__(self):
+        self.base_balance = None
+        self.closed_orders = None
+        self.market_balance = None
+        self.open_orders = None
+        
+
+class PairMarket:
     def __init__(self):
         self.ask = None
         self.bid = None
@@ -48,18 +79,23 @@ class QtradeAuth(requests.auth.AuthBase):
         hsh = sha256(request_details.encode("utf8")).digest()
         signature = base64.b64encode(hsh)
         req.headers.update({
-            "Authorization": "HMAC-SHA256 {}:{}".format(self.key_id, signature.decode("utf8")),
+            "Authorization": f"HMAC-SHA256 {self.key_id}:{signature.decode()}",
             "HMAC-Timestamp": timestamp
         })
         return req
 
 
 if __name__ == "__main__":
+    pair = "BIS_BTC"
+
     # Create a session object to make repeated API calls easy!
     api = requests.Session()
     # Create an authenticator with your API key
     with open("secret") as authfile:
         auth_details = authfile.read()
+
+    with open("config.json") as configfile:
+        config = json.loads(configfile.read())
 
     api.auth = QtradeAuth(auth_details)
 
@@ -67,37 +103,52 @@ if __name__ == "__main__":
     res = api.get('https://api.qtrade.io/v1/user/me').json()
     print(res)
 
-    bis_api = api.get("https://api.qtrade.io/v1/ticker/BIS_BTC").json()
+    market_api = api.get(f"https://api.qtrade.io/v1/ticker/{pair}").json()
 
     # move data to object
-    bis_pair = Pair()
-    bis_pair.ask = dec(bis_api["data"]["ask"])
-    bis_pair.bid = dec(bis_api["data"]["bid"])
-    bis_pair.day_avg_price = dec(bis_api["data"]["day_avg_price"])
-    bis_pair.day_change = dec(bis_api["data"]["day_change"])
-    bis_pair.day_high = dec(bis_api["data"]["day_high"])
-    bis_pair.day_low = dec(bis_api["data"]["day_low"])
-    bis_pair.day_open = dec(bis_api["data"]["day_open"])
-    bis_pair.day_volume_base = dec(bis_api["data"]["day_volume_base"])
-    bis_pair.day_volume_market = dec(bis_api["data"]["day_volume_market"])
-    bis_pair.id = int(bis_api["data"]["id"])
-    bis_pair.id_hr = bis_api["data"]["id_hr"]
-    bis_pair.last = dec(bis_api["data"]["last"])
+    pair_market = PairMarket()
+    
+    
+    pair_market.ask = dec(market_api["data"]["ask"])
+    pair_market.bid = dec(market_api["data"]["bid"])
+    pair_market.day_avg_price = dec(market_api["data"]["day_avg_price"])
+    pair_market.day_change = dec(market_api["data"]["day_change"])
+    pair_market.day_high = dec(market_api["data"]["day_high"])
+    pair_market.day_low = dec(market_api["data"]["day_low"])
+    pair_market.day_open = dec(market_api["data"]["day_open"])
+    pair_market.day_volume_base = dec(market_api["data"]["day_volume_base"])
+    pair_market.day_volume_market = dec(market_api["data"]["day_volume_market"])
+    pair_market.id = int(market_api["data"]["id"])
+    pair_market.id_hr = market_api["data"]["id_hr"]
+    pair_market.last = dec(market_api["data"]["last"])
 
-    bis_pair.spread = abs(bis_pair.ask - bis_pair.bid)
+    pair_market.day_spread = dec(abs(pair_market.day_low - pair_market.day_high))
 
-    print(bis_pair.spread)
-    print(bis_pair.ask)
-    print(bis_pair.bid)
-    print(bis_pair.day_avg_price)
-    print(bis_pair.day_change)
-    print(bis_pair.day_high)
-    print(bis_pair.day_low)
-    print(bis_pair.day_open)
-    print(bis_pair.day_volume_base)
-    print(bis_pair.day_volume_market)
-    print(bis_pair.id)
-    print(bis_pair.id_hr)
-    print(bis_pair.last)
+    print(pair_market.spread)
+    print(pair_market.ask)
+    print(pair_market.bid)
+    print(pair_market.day_avg_price)
+    print(pair_market.day_change)
+    print(pair_market.day_high)
+    print(pair_market.day_low)
+    print(pair_market.day_open)
+    print(pair_market.day_volume_base)
+    print(pair_market.day_volume_market)
+    print(pair_market.id)
+    print(pair_market.id_hr)
+    print(pair_market.last)
+    print(pair_market.day_spread)
 
+    order_api = api.get(f"https://api.qtrade.io/v1/user/market/{pair}").json()
+    pair_orders = PairOrders()
+
+    pair_orders.base_balance = order_api["data"]["base_balance"]
+    pair_orders.closed_orders = order_api["data"]["closed_orders"]
+    pair_orders.market_balance = order_api["data"]["market_balance"]
+    pair_orders.open_orders = order_api["data"]["open_orders"]
+
+    print(pair_orders.base_balance)
+    print(pair_orders.closed_orders)
+    print(pair_orders.market_balance)
+    print(pair_orders.open_orders)
 
