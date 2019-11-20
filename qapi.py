@@ -163,38 +163,42 @@ if __name__ == "__main__":
     print(pair_orders.market_balance)
     print(pair_orders.open_orders)
 
-    #place a sell order
-    balances = api.get("https://api.qtrade.io/v1/user/balances").json()
-    print(balances)
+    while True:
+        #place a sell order
+        balances = api.get("https://api.qtrade.io/v1/user/balances").json()
+        print(balances)
 
-    for balance in balances["data"]["balances"]:
-        #print(balance)
-        if balance["currency"] == trade_currency:
-            #print(balance["balance"])
-            if float(balance["balance"]) > trade_amount:
+        for balance in balances["data"]["balances"]:
+            #print(balance)
+            if balance["currency"] == trade_currency:
+                #print(balance["balance"])
+                if float(balance["balance"]) > trade_amount:
 
-                #sell order
-                #discount = percentage(trade_price_percentage, pair_market.bid)
-                req = {'amount': str(trade_amount),
-                       'market_id': trade_currency_id,
-                       'price': '%.8f' % pair_market.ask}
-                result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
+                    #sell order
+                    #discount = percentage(trade_price_percentage, pair_market.bid)
+                    req = {'amount': str(trade_amount),
+                           'market_id': trade_currency_id,
+                           'price': '%.8f' % pair_market.ask}
+                    result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
+                    print(result)
+                else:
+                    print(f"Insufficient balance for {trade_currency}")
+        #place a sell order
+
+        #go through orders
+        for order in pair_orders.open_orders:
+            #print(order["created_at"])
+            order_id = int(order["id"])
+            print(order_id)
+            age_of_order = age(order["created_at"])
+            if age_of_order > trade_order_ttl:
+                print(f"Order {order_id} is too old ({age_of_order}), deleting")
+
+                req = {'id': order_id}
+                result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=dict(req))
                 print(result)
             else:
-                print(f"Insufficient balance for {trade_currency}")
-    #place a sell order
+                print(f"Keeping order {order_id} in place, only {age_of_order} seconds old")
+        #go through orders
 
-    #go through orders
-    for order in pair_orders.open_orders:
-        #print(order["created_at"])
-        order_id = int(order["id"])
-        age_of_order = age(order["created_at"])
-        if age_of_order > trade_order_ttl:
-            print(f"Order {order_id} is too old ({age_of_order}), deleting")
-
-            req = {'id': order_id}
-            result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=req).json()
-            print(result)
-        else:
-            print(f"Keeping order {order_id} in place, only {age_of_order} seconds old")
-    #go through orders
+        time.sleep(15)
