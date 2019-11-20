@@ -1,3 +1,4 @@
+from dateutil import parser
 from datetime import datetime
 import requests
 import requests.auth
@@ -86,8 +87,9 @@ class QtradeAuth(requests.auth.AuthBase):
         return req
 
 def age(timestamp):
-    timestamp = datetime.timestamp(datetime.fromisoformat(timestamp.replace("T"," ").replace("Z",""))) + 3600
-    return int(time.time() - timestamp)
+    timestamp_ISO_8601 = parser.isoparse(timestamp)
+    epoch_ts = datetime.timestamp(timestamp_ISO_8601)
+    return int(time.time() - epoch_ts)
 
 if __name__ == "__main__":
     trade_currency_id = 20
@@ -176,7 +178,6 @@ if __name__ == "__main__":
                 req = {'amount': str(trade_amount),
                        'market_id': trade_currency_id,
                        'price': '%.8f' % pair_market.ask}
-
                 result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
                 print(result)
             else:
@@ -186,11 +187,14 @@ if __name__ == "__main__":
     #go through orders
     for order in pair_orders.open_orders:
         #print(order["created_at"])
-        if age(order["created_at"]) > trade_order_ttl:
-            print("Order is too old, deleting")
+        order_id = int(order["id"])
+        age_of_order = age(order["created_at"])
+        if age_of_order > trade_order_ttl:
+            print(f"Order {order_id} is too old ({age_of_order}), deleting")
 
-            req = {'id': order["id"]}
+            req = {'id': order_id}
             result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=req).json()
             print(result)
-
+        else:
+            print(f"Keeping order {order_id} in place, only {age_of_order} seconds old")
     #go through orders
