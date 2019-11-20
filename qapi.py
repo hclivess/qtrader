@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 import requests.auth
 import base64
@@ -84,9 +85,17 @@ class QtradeAuth(requests.auth.AuthBase):
         })
         return req
 
+def age(timestamp):
+    timestamp = datetime.timestamp(datetime.fromisoformat(timestamp.replace("T"," ").replace("Z",""))) + 3600
+    return int(time.time() - timestamp)
 
 if __name__ == "__main__":
-    pair = "BIS_BTC"
+    trade_currency_id = 20
+    trade_currency = "BIS"
+    trade_pair = "BIS_BTC"
+    trade_amount = 8
+    trade_order_ttl = 30
+    #trade_price_percentage = 5
 
     # Create a session object to make repeated API calls easy!
     api = requests.Session()
@@ -103,7 +112,7 @@ if __name__ == "__main__":
     res = api.get('https://api.qtrade.io/v1/user/me').json()
     print(res)
 
-    market_api = api.get(f"https://api.qtrade.io/v1/ticker/{pair}").json()
+    market_api = api.get(f"https://api.qtrade.io/v1/ticker/{trade_pair}").json()
 
     # move data to object
     pair_market = PairMarket()
@@ -139,7 +148,7 @@ if __name__ == "__main__":
     print(pair_market.last)
     print(pair_market.day_spread)
 
-    order_api = api.get(f"https://api.qtrade.io/v1/user/market/{pair}").json()
+    order_api = api.get(f"https://api.qtrade.io/v1/user/market/{trade_pair}").json()
     pair_orders = PairOrders()
 
     pair_orders.base_balance = order_api["data"]["base_balance"]
@@ -152,3 +161,36 @@ if __name__ == "__main__":
     print(pair_orders.market_balance)
     print(pair_orders.open_orders)
 
+    #place a sell order
+    balances = api.get("https://api.qtrade.io/v1/user/balances").json()
+    print(balances)
+
+    for balance in balances["data"]["balances"]:
+        #print(balance)
+        if balance["currency"] == trade_currency:
+            #print(balance["balance"])
+            if float(balance["balance"]) > trade_amount:
+
+                #sell order
+                #discount = percentage(trade_price_percentage, pair_market.bid)
+                req = {'amount': str(trade_amount),
+                       'market_id': trade_currency_id,
+                       'price': '%.8f' % pair_market.ask}
+
+                result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
+                print(result)
+            else:
+                print(f"Insufficient balance for {trade_currency}")
+    #place a sell order
+
+    #go through orders
+    for order in pair_orders.open_orders:
+        #print(order["created_at"])
+        if age(order["created_at"]) > trade_order_ttl:
+            print("Order is too old, deleting")
+
+            req = {'id': order["id"]}
+            result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=req).json()
+            print(result)
+
+    #go through orders
