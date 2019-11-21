@@ -40,20 +40,23 @@ class PairOrders:
         
 
 class PairMarket:
-    def __init__(self):
-        self.ask = None
-        self.bid = None
-        self.day_avg_price = None
-        self.day_change = None
-        self.day_high = None
-        self.day_low = None
-        self.day_open = None
-        self.day_volume_base = None
-        self.day_volume_market = None
-        self.id = None
-        self.id_hr = None
-        self.last = None
-        self.spread = None
+    def __init__(self, configuration):
+        self.ask = dec(conf.market_api["data"]["ask"])
+        self.bid = dec(conf.market_api["data"]["bid"])
+        self.spread = dec(abs(self.ask - self.bid))
+
+        self.day_avg_price = dec(conf.market_api["data"]["day_avg_price"])
+        self.day_change = dec(conf.market_api["data"]["day_change"])
+        self.day_high = dec(conf.market_api["data"]["day_high"])
+        self.day_low = dec(conf.market_api["data"]["day_low"])
+        self.day_open = dec(conf.market_api["data"]["day_open"])
+        self.day_volume_base = dec(conf.market_api["data"]["day_volume_base"])
+        self.day_volume_market = dec(conf.market_api["data"]["day_volume_market"])
+        self.id = int(conf.market_api["data"]["id"])
+        self.id_hr = conf.market_api["data"]["id_hr"]
+        self.last_price = dec(conf.market_api["data"]["last"])
+        self.day_spread = dec(abs(self.day_high - self.day_low))
+        self.spread_percentage = 100 - part_percentage(pair_market.bid, pair_market.ask)
 
 class Config:
     def __init__(self, currency, id, sell_amount, buy_amount, ttl, spread_pct_min):
@@ -99,23 +102,7 @@ if __name__ == "__main__":
         try:
             # Make a call to API
             # move data to object
-            pair_market = PairMarket()
-
-            pair_market.ask = dec(conf.market_api["data"]["ask"])
-            pair_market.bid = dec(conf.market_api["data"]["bid"])
-            pair_market.spread = dec(abs(pair_market.ask - pair_market.bid))
-
-            pair_market.day_avg_price = dec(conf.market_api["data"]["day_avg_price"])
-            pair_market.day_change = dec(conf.market_api["data"]["day_change"])
-            pair_market.day_high = dec(conf.market_api["data"]["day_high"])
-            pair_market.day_low = dec(conf.market_api["data"]["day_low"])
-            pair_market.day_open = dec(conf.market_api["data"]["day_open"])
-            pair_market.day_volume_base = dec(conf.market_api["data"]["day_volume_base"])
-            pair_market.day_volume_market = dec(conf.market_api["data"]["day_volume_market"])
-            pair_market.id = int(conf.market_api["data"]["id"])
-            pair_market.id_hr = conf.market_api["data"]["id_hr"]
-            pair_market.last_price = dec(conf.market_api["data"]["last"])
-            pair_market.day_spread = dec(abs(pair_market.day_high - pair_market.day_low))
+            pair_market = PairMarket(conf)
 
             print("spread", '%.8f' % pair_market.spread)
             print("ask", pair_market.ask)
@@ -131,9 +118,7 @@ if __name__ == "__main__":
             print("id_hr", pair_market.id_hr)
             print("last_price", pair_market.last_price)
             print("day_spread", pair_market.day_spread)
-
-            spread_percentage = 100 - part_percentage(pair_market.bid, pair_market.ask)
-            print("spread_percentage", '%.8f' % spread_percentage)
+            print("spread_percentage", '%.8f' % pair_market.spread_percentage)
 
             order_api = api.get(f"https://api.qtrade.io/v1/user/market/{conf.pair}").json()
             pair_orders = PairOrders()
@@ -148,7 +133,7 @@ if __name__ == "__main__":
             print(pair_orders.market_balance)
             print(pair_orders.open_orders)
 
-            if spread_percentage >= conf.spread_pct_min:
+            if pair_market.spread_percentage >= conf.spread_pct_min:
                 #place a sell order
                 balances = api.get("https://api.qtrade.io/v1/user/balances").json()
                 print(balances)
