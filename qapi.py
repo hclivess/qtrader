@@ -56,7 +56,7 @@ class PairMarket:
         self.id_hr = conf.market_api["data"]["id_hr"]
         self.last_price = dec(conf.market_api["data"]["last"])
         self.day_spread = dec(abs(self.day_high - self.day_low))
-        self.spread_percentage = 100 - part_percentage(pair_market.bid, pair_market.ask)
+        self.spread_percentage = 100 - part_percentage(self.bid, self.ask)
 
 class Config:
     def __init__(self, currency, id, sell_amount, buy_amount, ttl, spread_pct_min):
@@ -70,6 +70,11 @@ class Config:
         # trade_price_percentage = 5
         self.orders_placed = []
         self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
+
+    def count_orders(self):
+        self.orders_count = len(self.orders_placed)
+        return self.orders_count
+
 
 def age(timestamp):
     timestamp_ISO_8601 = parser.isoparse(timestamp)
@@ -194,10 +199,14 @@ if __name__ == "__main__":
                     req = {'id': order_id}
                     result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=dict(req))
                     print(result)
-                    conf.orders_placed.remove(order_id)
+                    if order_id in conf.orders_placed: #if it has not been placed by someone else
+                        conf.orders_placed.remove(order_id)
                 else:
                     print(f"Keeping order {order_id} in place, only {age_of_order} seconds old")
             #go through orders
+
+            print(f"Our orders: {conf.orders_placed}")
+            print(f"Number of our orders: {conf.count_orders()}")
 
             time.sleep(60)
 
