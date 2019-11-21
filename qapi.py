@@ -95,8 +95,8 @@ if __name__ == "__main__":
     trade_pair = "BIS_BTC"
     trade_sell_amount = 16
     trade_buy_amount = 12
-    trade_order_ttl = 30
-    trade_minimum_spread_percentage = 5
+    trade_order_ttl = 240
+    trade_minimum_spread_percentage = 1
     #trade_price_percentage = 5
 
     # Create a session object to make repeated API calls easy!
@@ -151,7 +151,7 @@ if __name__ == "__main__":
             print(pair_market.last)
             print("day_spread", pair_market.day_spread)
 
-            spread_percentage = part_percentage(pair_market.bid, pair_market.ask)
+            spread_percentage = 100 - part_percentage(pair_market.bid, pair_market.ask)
             print("percent", '%.8f' % spread_percentage)
 
             order_api = api.get(f"https://api.qtrade.io/v1/user/market/{trade_pair}").json()
@@ -211,6 +211,8 @@ if __name__ == "__main__":
                         else:
                             print(f"Insufficient balance for {balance['currency']}")
                 # place a buy order
+            else:
+                print("Skipping orders, spread too small")
 
             #go through orders
             for order in pair_orders.open_orders:
