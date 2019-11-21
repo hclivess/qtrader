@@ -57,13 +57,13 @@ class PairMarket:
 
 class Config:
     def __init__(self, currency, id, sell_amount, buy_amount, ttl, spread_pct_min):
-        self.currency_id = 20
+        self.currency_id = id
         self.currencies = [f"{currency}"]
         self.pair = f"{currency}_BTC"
-        self.sell_amount = 16
-        self.buy_amount = 12
-        self.order_ttl = 240
-        self.spread_pct_min = 1
+        self.sell_amount = sell_amount
+        self.buy_amount = buy_amount
+        self.order_ttl = ttl
+        self.spread_pct_min = spread_pct_min
         # trade_price_percentage = 5
         self.orders_placed = []
         self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
@@ -101,9 +101,10 @@ if __name__ == "__main__":
             # move data to object
             pair_market = PairMarket()
 
-
             pair_market.ask = dec(conf.market_api["data"]["ask"])
             pair_market.bid = dec(conf.market_api["data"]["bid"])
+            pair_market.spread = dec(abs(pair_market.ask - pair_market.bid))
+
             pair_market.day_avg_price = dec(conf.market_api["data"]["day_avg_price"])
             pair_market.day_change = dec(conf.market_api["data"]["day_change"])
             pair_market.day_high = dec(conf.market_api["data"]["day_high"])
@@ -113,23 +114,22 @@ if __name__ == "__main__":
             pair_market.day_volume_market = dec(conf.market_api["data"]["day_volume_market"])
             pair_market.id = int(conf.market_api["data"]["id"])
             pair_market.id_hr = conf.market_api["data"]["id_hr"]
-            pair_market.last = dec(conf.market_api["data"]["last"])
+            pair_market.last_price = dec(conf.market_api["data"]["last"])
+            pair_market.day_spread = dec(abs(pair_market.day_high - pair_market.day_low))
 
-            pair_market.day_spread = dec(abs(pair_market.day_low - pair_market.day_high))
-
-            print(pair_market.spread)
+            print("spread", '%.8f' % pair_market.spread)
             print("ask", pair_market.ask)
             print("bid", pair_market.bid)
-            print(pair_market.day_avg_price)
-            print(pair_market.day_change)
-            print(pair_market.day_high)
-            print(pair_market.day_low)
-            print(pair_market.day_open)
-            print(pair_market.day_volume_base)
-            print(pair_market.day_volume_market)
-            print(pair_market.id)
-            print(pair_market.id_hr)
-            print(pair_market.last)
+            print("day_avg_price", pair_market.day_avg_price)
+            print("day_change", pair_market.day_change)
+            print("day_high", pair_market.day_high)
+            print("day_low", pair_market.day_low)
+            print("day_open", pair_market.day_open)
+            print("day_volume_base", pair_market.day_volume_base)
+            print("day_volume_market", pair_market.day_volume_market)
+            print("id", pair_market.id)
+            print("id_hr", pair_market.id_hr)
+            print("last_price", pair_market.last_price)
             print("day_spread", pair_market.day_spread)
 
             spread_percentage = 100 - part_percentage(pair_market.bid, pair_market.ask)
