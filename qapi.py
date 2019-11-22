@@ -162,7 +162,7 @@ if __name__ == "__main__":
                             print(f"Placed sell order {order_id}")
                             conf.orders_placed.append(order_id)
                         else:
-                            print(f"Insufficient balance for {config.buy_amount} orders: {balance['currency']}")
+                            print(f"Insufficient balance for {balance['currency']} ({conf.buy_amount} orders), {balance['balance']}")
                 #place a sell order
 
                 # place a buy order
@@ -182,10 +182,11 @@ if __name__ == "__main__":
                                    'price': '%.8f' % (pair_market.bid + conf.price_adjustment)}
                             result = api.post("https://api.qtrade.io/v1/user/buy_limit", json=req).json()
                             print(result)
-                            print(f"Placed buy order {result['data']['order']['id']}")
-                            conf.orders_placed.append(result['data']['order']['id'])
+                            order_id = int(result['data']['order']['id'])
+                            print(f"Placed buy order {order_id}")
+                            conf.orders_placed.append(order_id)
                         else:
-                            print(f"Insufficient balance for {balance['currency']}, only {balance['balance']}")
+                            print(f"Insufficient balance for {balance['currency']} ({conf.buy_amount} orders), {balance['balance']}")
                 # place a buy order
             else:
                 print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
