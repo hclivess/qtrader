@@ -188,7 +188,7 @@ if __name__ == "__main__":
                             print(f"Insufficient balance for {balance['currency']}, only {balance['balance']}")
                 # place a buy order
             else:
-                print("Skipping orders, spread too small")
+                print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
 
             #go through orders
             for order in pair_orders.open_orders:
