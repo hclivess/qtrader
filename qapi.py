@@ -59,7 +59,7 @@ class PairMarket:
         self.spread_percentage = 100 - part_percentage(self.bid, self.ask)
 
 class Config:
-    def __init__(self, currency, id, sell_amount, buy_amount, ttl, spread_pct_min):
+    def __init__(self, currency, id, sell_amount, buy_amount, ttl, spread_pct_min, price_adjustment):
         self.currency_id = id
         self.currencies = [f"{currency}"]
         self.pair = f"{currency}_BTC"
@@ -70,6 +70,7 @@ class Config:
         # trade_price_percentage = 5
         self.orders_placed = []
         self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
+        self.price_adjustment = price_adjustment
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -98,7 +99,8 @@ if __name__ == "__main__":
                   sell_amount=18, 
                   buy_amount=12,
                   ttl=120, 
-                  spread_pct_min=1)
+                  spread_pct_min=1,
+                  price_adjustment=dec("0.00000001"))
     
     while True:
         res = api.get('https://api.qtrade.io/v1/user/me').json()
@@ -153,13 +155,14 @@ if __name__ == "__main__":
                             #discount = percentage(trade_price_percentage, pair_market.bid)
                             req = {'amount': str(conf.sell_amount),
                                    'market_id': conf.currency_id,
-                                   'price': '%.8f' % pair_market.ask}
+                                   'price': '%.8f' % (pair_market.ask - conf.price_adjustment)}
                             result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
                             print(result)
-                            print(f"Placed sell order {result['data']['order']['id']}")
-                            conf.orders_placed.append(result['data']['order']['id'])
+                            order_id = result['data']['order']['id']
+                            print(f"Placed sell order {order_id}")
+                            conf.orders_placed.append(order_id)
                         else:
-                            print(f"Insufficient balance for {balance['currency']}")
+                            print(f"Insufficient balance for {config.buy_amount} orders: {balance['currency']}")
                 #place a sell order
 
                 # place a buy order
@@ -176,7 +179,7 @@ if __name__ == "__main__":
                             # discount = percentage(trade_price_percentage, pair_market.bid)
                             req = {'amount': str(conf.buy_amount),
                                    'market_id': conf.currency_id,
-                                   'price': '%.8f' % pair_market.bid}
+                                   'price': '%.8f' % (pair_market.bid + conf.price_adjustment)}
                             result = api.post("https://api.qtrade.io/v1/user/buy_limit", json=req).json()
                             print(result)
                             print(f"Placed buy order {result['data']['order']['id']}")
