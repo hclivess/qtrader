@@ -73,7 +73,7 @@ class Balances:
 class Config:
     def __init__(self, name, sell_amount, buy_amount, ttl, spread_pct_min, price_adjustment, max_buy_price, min_sell_price):
         self.orders_placed = []
-        self.currencies = [f"{name}"]
+        self.name = name
         self.pair = f"{name}_BTC"
         self.sell_amount = sell_amount
         self.buy_amount = buy_amount
@@ -175,10 +175,15 @@ if __name__ == "__main__":
                     # place a sell order
                     if pair_market.ask <= conf.min_sell_price:
                         print("Market price too low to sell now")
+                    elif conf.buy_amount <= 0:
+                        print(f"Not configured to sell (sell amount to {conf.sell_amount})")
+
                     else:
                         for balance in balances["data"]["balances"]:
                             # print(balance)
-                            if balance["currency"] in conf.currencies and conf.sell_amount > 0:
+                            if balance["currency"] == conf.name:
+
+
                                 # print(balance["balance"])
                                 if float(balance["balance"]) > conf.sell_amount:
 
@@ -193,18 +198,21 @@ if __name__ == "__main__":
                                     conf.orders_placed.append(order_id)
                                 else:
                                     print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
-                            if conf.buy_amount <= 0:
-                                print(f"Not configured to sell (sell set to {conf.sell_amount})")
 
                     # place a sell order
+
+
+
 
                     # place a buy order
                     if pair_market.bid >= conf.max_buy_price:
                         print("Market price too high to buy now")
+                    elif conf.buy_amount <= 0:
+                        print(f"Not configured to buy (buy set to {conf.buy_amount})")
                     else:
                         for balance in balances["data"]["balances"]:
                             # print(balance)
-                            if balance["currency"] == "BTC" and conf.buy_amount > 0:
+                            if balance["currency"] == "BTC":
                                 # print(balance["balance"])
                                 if float(balance["balance"]) > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
 
@@ -220,8 +228,7 @@ if __name__ == "__main__":
                                     conf.orders_placed.append(order_id)
                                 else:
                                     print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
-                            if conf.buy_amount <= 0:
-                                print(f"Not configured to buy (buy set to {conf.buy_amount})")
+
                     # place a buy order
 
                 else:
