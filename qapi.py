@@ -104,7 +104,6 @@ class Config:
         self.buy_amount = buy_amount
         self.order_ttl = ttl
         self.spread_pct_min = spread_pct_min
-        # trade_price_percentage = 5
         self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
         self.currency_id = self.market_api["data"]["id"]
         self.price_adjustment = price_adjustment
@@ -215,7 +214,7 @@ if __name__ == "__main__":
                     # place a sell order
                     if pair_market.ask <= conf.min_sell_price:
                         print("Market price too low to sell now")
-                    elif conf.buy_amount <= 0:
+                    elif conf.sell_amount <= 0:
                         print(
                             f"Not configured to sell (sell amount to {conf.sell_amount})"
                         )
@@ -242,7 +241,7 @@ if __name__ == "__main__":
                             conf.orders_placed.append(order_id)
                         else:
                             print(
-                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)"
+                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} units)"
                             )
 
                     # place a sell order
