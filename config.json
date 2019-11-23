@@ -1,1 +1,16 @@
-{}
+[
+  {"name": "BIS",
+    "sell_amount": 36,
+    "buy_amount": 12,
+    "ttl": 120,
+    "spread_pct_min": 1,
+    "price_adjustment": 0.00000001
+  },
+  {"name": "NYZO",
+    "sell_amount": 0,
+    "buy_amount": 24,
+    "ttl": 120,
+    "spread_pct_min": 1,
+    "price_adjustment": 0.00000001
+  }
+]
