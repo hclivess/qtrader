@@ -291,7 +291,7 @@ if __name__ == "__main__":
                     order_id = int(order["id"])
                     age_of_order = age(order["created_at"])
                     if age_of_order > conf.order_ttl:
-                        print(f"Order {order_id} is too old ({age_of_order}), deleting")
+                        print(f"Removing old order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old")
 
                         req = {"id": order_id}
                         result = api.post(
@@ -304,12 +304,12 @@ if __name__ == "__main__":
                             conf.orders_placed.remove(order_id)
                     else:
                         print(
-                            f"Keeping order {order_id} in place, only {age_of_order} seconds old"
+                            f"Order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
                         )
                 # go through orders
 
-                print(f"Our orders: {conf.orders_placed}")
-                print(f"Number of our orders: {conf.count_orders()}")
+                print(f"{conf.name} orders: {conf.orders_placed}")
+                print(f"Number of {conf.name} orders: {conf.count_orders()}")
 
             except Exception as e:
                 print(f"Error: {e}")
