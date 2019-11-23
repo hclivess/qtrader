@@ -10,7 +10,7 @@
     "sell_amount": 0,
     "buy_amount": 24,
     "ttl": 120,
-    "spread_pct_min": 1,
+    "spread_pct_min": 0,
     "price_adjustment": 0.00000001
   }
 ]
