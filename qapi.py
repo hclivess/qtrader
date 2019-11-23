@@ -1,4 +1,4 @@
-# from qtrade_client.api import QtradeAPI
+from qtrade_client.api import QtradeAPI
 import json
 import time
 from datetime import datetime
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     api = requests.Session()
     # Create an authenticator with your API key
 
-    # api.auth_native = QtradeAPI("https://api.qtrade.io", key=load_credentials()) # use in the future
+    api.auth_native = QtradeAPI("https://api.qtrade.io", key=load_credentials())  # use in the future
     api.auth = QtradeAuth(load_credentials())
 
     # load currencies
@@ -195,7 +195,8 @@ if __name__ == "__main__":
                 pair_orders.base_balance = order_api["data"]["base_balance"]
                 pair_orders.closed_orders = order_api["data"]["closed_orders"]
                 pair_orders.market_balance = order_api["data"]["market_balance"]
-                pair_orders.open_orders = order_api["data"]["open_orders"]
+                #pair_orders.open_orders = order_api["data"]["open_orders"]  # old way
+                pair_orders.open_orders = api.auth_native.orders(open=True)
 
                 print(pair_orders.base_balance)
                 print(pair_orders.closed_orders)
