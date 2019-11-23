@@ -171,8 +171,10 @@ if __name__ == "__main__":
                 print(pair_orders.market_balance)
                 print(pair_orders.open_orders)
 
-                if pair_market.spread_percentage >= conf.spread_pct_min:
+                if pair_market.spread_percentage < conf.spread_pct_min:
+                    print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
 
+                else:
                     balances = api.get("https://api.qtrade.io/v1/user/balances").json()
                     print(balances)
 
@@ -228,9 +230,6 @@ if __name__ == "__main__":
                             print(f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)")
 
                     # place a buy order
-
-                else:
-                    print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
 
                 # go through orders
                 for order in pair_orders.open_orders:
