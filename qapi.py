@@ -80,10 +80,16 @@ class PairMarket:
         self.spread_percentage = 100 - part_percentage(self.bid, self.ask)
 
 
-class Balances:
-    def __init__(self):
-        pass
 
+def pick_currency(balances_dict, currency_name):
+    for entry in balances_dict["data"]["balances"]:
+        if entry["currency"] == currency_name:
+            return Balance(entry)
+
+class Balance:
+    def __init__(self, balance_dict):
+        self.name = balance_dict["currency"]
+        self.balance = float(balance_dict["balance"])
 
 class Config:
     def __init__(
@@ -122,10 +128,7 @@ def age(timestamp):
     return int(time.time() - epoch_ts)
 
 
-def pick_currency(currency_list, currency_name):
-    for entry in currency_list["data"]["balances"]:
-        if entry["currency"] == currency_name:
-            return entry
+
 
 
 if __name__ == "__main__":
@@ -208,8 +211,10 @@ if __name__ == "__main__":
                     )
 
                 else:
+
                     balances = api.get("https://api.qtrade.io/v1/user/balances").json()
                     print(balances)
+
 
                     # place a sell order
                     if pair_market.ask <= conf.min_sell_price:
@@ -220,10 +225,9 @@ if __name__ == "__main__":
                         )
 
                     else:
-
                         c = pick_currency(balances, conf.name)
                         # print(balance["balance"])
-                        if float(c["balance"]) > conf.sell_amount:
+                        if c.balance > conf.sell_amount:
 
                             # sell order
                             req = {
@@ -241,7 +245,7 @@ if __name__ == "__main__":
                             conf.orders_placed.append(order_id)
                         else:
                             print(
-                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} units)"
+                                f"Insufficient balance ({c.balance} for {c.name} ({conf.buy_amount} units)"
                             )
 
                     # place a sell order
@@ -256,7 +260,7 @@ if __name__ == "__main__":
 
                         # print(balance["balance"])
                         if (
-                            float(c["balance"]) > conf.buy_amount * pair_market.bid
+                            c.balance > conf.buy_amount * pair_market.bid
                         ):  # if one can afford to buy trade_buy_amount
 
                             # sell order
@@ -277,7 +281,7 @@ if __name__ == "__main__":
                             conf.orders_placed.append(order_id)
                         else:
                             print(
-                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)"
+                                f"Insufficient balance ({c.balance}) for {c.name} ({conf.buy_amount} orders)"
                             )
 
                     # place a buy order
