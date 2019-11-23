@@ -71,7 +71,7 @@ class Balances:
 
 
 class Config:
-    def __init__(self, name, sell_amount, buy_amount, ttl, spread_pct_min, price_adjustment):
+    def __init__(self, name, sell_amount, buy_amount, ttl, spread_pct_min, price_adjustment, max_buy_price, min_sell_price):
         self.orders_placed = []
         self.currencies = [f"{name}"]
         self.pair = f"{name}_BTC"
@@ -84,6 +84,8 @@ class Config:
         self.currency_id = self.market_api["data"]["id"]
         self.price_adjustment = price_adjustment
         print("market_api", self.market_api)
+        self.max_buy_price = max_buy_price
+        self.min_sell_price = min_sell_price
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -110,13 +112,18 @@ if __name__ == "__main__":
         confile_contents = json.loads(confile.read())
         for currency in confile_contents:
             print(f"Loaded {currency}")
+
             active_currencies.append(
                 Config(name=currency["name"],
                        sell_amount=currency["sell_amount"],
                        buy_amount=currency["buy_amount"],
                        ttl=currency["ttl"],
                        spread_pct_min=currency["spread_pct_min"],
-                       price_adjustment=dec(currency["price_adjustment"])))
+                       price_adjustment=dec(currency["price_adjustment"]),
+                       max_buy_price=currency["max_buy_price"],
+                       min_sell_price=currency["min_sell_price"]
+                       )
+            )
 
     # load currencies
 
@@ -161,57 +168,62 @@ if __name__ == "__main__":
                 print(pair_orders.open_orders)
 
                 if pair_market.spread_percentage >= conf.spread_pct_min:
-                    # place a sell order
+
                     balances = api.get("https://api.qtrade.io/v1/user/balances").json()
                     print(balances)
 
-                    for balance in balances["data"]["balances"]:
-                        # print(balance)
-                        if balance["currency"] in conf.currencies and conf.sell_amount > 0:
-                            # print(balance["balance"])
-                            if float(balance["balance"]) > conf.sell_amount:
+                    # place a sell order
+                    if pair_market.ask <= conf.min_sell_price:
+                        print("Market price too low to sell now")
+                    else:
+                        for balance in balances["data"]["balances"]:
+                            # print(balance)
+                            if balance["currency"] in conf.currencies and conf.sell_amount > 0:
+                                # print(balance["balance"])
+                                if float(balance["balance"]) > conf.sell_amount:
 
-                                # sell order
-                                # discount = percentage(trade_price_percentage, pair_market.bid)
-                                req = {'amount': str(conf.sell_amount),
-                                       'market_id': conf.currency_id,
-                                       'price': '%.8f' % (pair_market.ask - conf.price_adjustment)}
-                                result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
-                                print(result)
-                                order_id = result['data']['order']['id']
-                                print(f"Placed sell order {order_id}")
-                                conf.orders_placed.append(order_id)
-                            else:
-                                print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
-                        if conf.buy_amount <= 0:
-                            print(f"Not configured to sell (sell set to {conf.sell_amount})")
+                                    # sell order
+                                    req = {'amount': str(conf.sell_amount),
+                                           'market_id': conf.currency_id,
+                                           'price': '%.8f' % (pair_market.ask - conf.price_adjustment)}
+                                    result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
+                                    print(result)
+                                    order_id = result['data']['order']['id']
+                                    print(f"Placed sell order {order_id}")
+                                    conf.orders_placed.append(order_id)
+                                else:
+                                    print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
+                            if conf.buy_amount <= 0:
+                                print(f"Not configured to sell (sell set to {conf.sell_amount})")
+
                     # place a sell order
 
                     # place a buy order
-                    balances = api.get("https://api.qtrade.io/v1/user/balances").json()
-                    print("balances", balances)
+                    if pair_market.bid >= conf.max_buy_price:
+                        print("Market price too high to buy now")
+                    else:
+                        for balance in balances["data"]["balances"]:
+                            # print(balance)
+                            if balance["currency"] == "BTC" and conf.buy_amount > 0:
+                                # print(balance["balance"])
+                                if float(balance["balance"]) > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
 
-                    for balance in balances["data"]["balances"]:
-                        # print(balance)
-                        if balance["currency"] == "BTC" and conf.buy_amount > 0:
-                            # print(balance["balance"])
-                            if float(balance["balance"]) > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
-
-                                # sell order
-                                # discount = percentage(trade_price_percentage, pair_market.bid)
-                                req = {'amount': str(conf.buy_amount),
-                                       'market_id': conf.currency_id,
-                                       'price': '%.8f' % (pair_market.bid + conf.price_adjustment)}
-                                result = api.post("https://api.qtrade.io/v1/user/buy_limit", json=req).json()
-                                print(result)
-                                order_id = int(result['data']['order']['id'])
-                                print(f"Placed buy order {order_id}")
-                                conf.orders_placed.append(order_id)
-                            else:
-                                print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
-                        if conf.buy_amount <= 0:
-                            print(f"Not configured to buy (buy set to {conf.buy_amount})")
+                                    # sell order
+                                    # discount = percentage(trade_price_percentage, pair_market.bid)
+                                    req = {'amount': str(conf.buy_amount),
+                                           'market_id': conf.currency_id,
+                                           'price': '%.8f' % (pair_market.bid + conf.price_adjustment)}
+                                    result = api.post("https://api.qtrade.io/v1/user/buy_limit", json=req).json()
+                                    print(result)
+                                    order_id = int(result['data']['order']['id'])
+                                    print(f"Placed buy order {order_id}")
+                                    conf.orders_placed.append(order_id)
+                                else:
+                                    print(f"Insufficient balance ({balance['balance']}) for {balance['currency']} ({conf.buy_amount} orders)")
+                            if conf.buy_amount <= 0:
+                                print(f"Not configured to buy (buy set to {conf.buy_amount})")
                     # place a buy order
+
                 else:
                     print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
 

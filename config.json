@@ -1,14 +1,18 @@
 [
   {"name": "BIS",
     "sell_amount": 36,
+    "min_sell_price": 0.00001300,
     "buy_amount": 12,
+    "max_buy_price": 0.00002000,
     "ttl": 120,
     "spread_pct_min": 1,
     "price_adjustment": 0.00000001
   },
   {"name": "NYZO",
     "sell_amount": 0,
+    "min_sell_price": 0.00002000,
     "buy_amount": 24,
+    "max_buy_price": 0.00002000,
     "ttl": 120,
     "spread_pct_min": 0,
     "price_adjustment": 0.00000001
