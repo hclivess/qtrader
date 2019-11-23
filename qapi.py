@@ -1,8 +1,16 @@
+# from qtrade_client.api import QtradeAPI
 import json
 import time
 from datetime import datetime
 from decimal import Decimal as dec
-from decimal import getcontext, Context, Overflow, DivisionByZero, InvalidOperation, ROUND_HALF_EVEN
+from decimal import (
+    getcontext,
+    Context,
+    Overflow,
+    DivisionByZero,
+    InvalidOperation,
+    ROUND_HALF_EVEN,
+)
 
 import requests
 from dateutil import parser
@@ -10,9 +18,16 @@ from dateutil import parser
 from auth import QtradeAuth
 
 getcontext()
-Context(prec=8, rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
-        capitals=1, clamp=0, flags=[], traps=[Overflow, DivisionByZero,
-                                              InvalidOperation])
+Context(
+    prec=8,
+    rounding=ROUND_HALF_EVEN,
+    Emin=-999999,
+    Emax=999999,
+    capitals=1,
+    clamp=0,
+    flags=[],
+    traps=[Overflow, DivisionByZero, InvalidOperation],
+)
 
 
 def part_percentage(part, whole):
@@ -71,7 +86,17 @@ class Balances:
 
 
 class Config:
-    def __init__(self, name, sell_amount, buy_amount, ttl, spread_pct_min, price_adjustment, max_buy_price, min_sell_price):
+    def __init__(
+        self,
+        name,
+        sell_amount,
+        buy_amount,
+        ttl,
+        spread_pct_min,
+        price_adjustment,
+        max_buy_price,
+        min_sell_price,
+    ):
         self.orders_placed = []
         self.name = name
         self.pair = f"{name}_BTC"
@@ -97,10 +122,12 @@ def age(timestamp):
     epoch_ts = datetime.timestamp(timestamp_ISO_8601)
     return int(time.time() - epoch_ts)
 
+
 def pick_currency(currency_list, currency_name):
     for entry in currency_list["data"]["balances"]:
         if entry["currency"] == currency_name:
             return entry
+
 
 if __name__ == "__main__":
 
@@ -108,6 +135,7 @@ if __name__ == "__main__":
     api = requests.Session()
     # Create an authenticator with your API key
 
+    # api.auth_native = QtradeAPI("https://api.qtrade.io", key=load_credentials()) # use in the future
     api.auth = QtradeAuth(load_credentials())
 
     # load currencies
@@ -118,21 +146,22 @@ if __name__ == "__main__":
             print(f"Loaded {currency}")
 
             active_currencies.append(
-                Config(name=currency["name"],
-                       sell_amount=currency["sell_amount"],
-                       buy_amount=currency["buy_amount"],
-                       ttl=currency["ttl"],
-                       spread_pct_min=currency["spread_pct_min"],
-                       price_adjustment=dec(currency["price_adjustment"]),
-                       max_buy_price=currency["max_buy_price"],
-                       min_sell_price=currency["min_sell_price"]
-                       )
+                Config(
+                    name=currency["name"],
+                    sell_amount=currency["sell_amount"],
+                    buy_amount=currency["buy_amount"],
+                    ttl=currency["ttl"],
+                    spread_pct_min=currency["spread_pct_min"],
+                    price_adjustment=dec(currency["price_adjustment"]),
+                    max_buy_price=currency["max_buy_price"],
+                    min_sell_price=currency["min_sell_price"],
+                )
             )
 
     # load currencies
 
     while True:
-        me = api.get('https://api.qtrade.io/v1/user/me').json()
+        me = api.get("https://api.qtrade.io/v1/user/me").json()
         print(me)
 
         for conf in active_currencies:
@@ -142,7 +171,7 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
-                print("spread", '%.8f' % pair_market.spread)
+                print("spread", "%.8f" % pair_market.spread)
                 print("ask", pair_market.ask)
                 print("bid", pair_market.bid)
                 print("day_avg_price", pair_market.day_avg_price)
@@ -156,9 +185,11 @@ if __name__ == "__main__":
                 print("id_hr", pair_market.id_hr)
                 print("last_price", pair_market.last_price)
                 print("day_spread", pair_market.day_spread)
-                print("spread_percentage", '%.8f' % pair_market.spread_percentage)
+                print("spread_percentage", "%.8f" % pair_market.spread_percentage)
 
-                order_api = api.get(f"https://api.qtrade.io/v1/user/market/{conf.pair}").json()
+                order_api = api.get(
+                    f"https://api.qtrade.io/v1/user/market/{conf.pair}"
+                ).json()
                 pair_orders = PairOrders()
 
                 pair_orders.base_balance = order_api["data"]["base_balance"]
@@ -172,7 +203,9 @@ if __name__ == "__main__":
                 print(pair_orders.open_orders)
 
                 if pair_market.spread_percentage < conf.spread_pct_min:
-                    print(f"Not adding new orders, spread of {pair_market.spread_percentage} too small")
+                    print(
+                        f"Not adding new orders, spread of {pair_market.spread_percentage} too small"
+                    )
 
                 else:
                     balances = api.get("https://api.qtrade.io/v1/user/balances").json()
@@ -182,7 +215,9 @@ if __name__ == "__main__":
                     if pair_market.ask <= conf.min_sell_price:
                         print("Market price too low to sell now")
                     elif conf.buy_amount <= 0:
-                        print(f"Not configured to sell (sell amount to {conf.sell_amount})")
+                        print(
+                            f"Not configured to sell (sell amount to {conf.sell_amount})"
+                        )
 
                     else:
 
@@ -191,16 +226,23 @@ if __name__ == "__main__":
                         if float(c["balance"]) > conf.sell_amount:
 
                             # sell order
-                            req = {'amount': str(conf.sell_amount),
-                                   'market_id': conf.currency_id,
-                                   'price': '%.8f' % (pair_market.ask - conf.price_adjustment)}
-                            result = api.post("https://api.qtrade.io/v1/user/sell_limit", json=req).json()
+                            req = {
+                                "amount": str(conf.sell_amount),
+                                "market_id": conf.currency_id,
+                                "price": "%.8f"
+                                % (pair_market.ask - conf.price_adjustment),
+                            }
+                            result = api.post(
+                                "https://api.qtrade.io/v1/user/sell_limit", json=req
+                            ).json()
                             print(result)
-                            order_id = result['data']['order']['id']
+                            order_id = result["data"]["order"]["id"]
                             print(f"Placed sell order {order_id}")
                             conf.orders_placed.append(order_id)
                         else:
-                            print(f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)")
+                            print(
+                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)"
+                            )
 
                     # place a sell order
 
@@ -213,21 +255,30 @@ if __name__ == "__main__":
                         c = pick_currency(balances, "BTC")
 
                         # print(balance["balance"])
-                        if float(c["balance"]) > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
+                        if (
+                            float(c["balance"]) > conf.buy_amount * pair_market.bid
+                        ):  # if one can afford to buy trade_buy_amount
 
                             # sell order
                             # discount = percentage(trade_price_percentage, pair_market.bid)
-                            req = {'amount': str(conf.buy_amount),
-                                   'market_id': conf.currency_id,
-                                   'price': '%.8f' % (pair_market.bid + conf.price_adjustment)}
+                            req = {
+                                "amount": str(conf.buy_amount),
+                                "market_id": conf.currency_id,
+                                "price": "%.8f"
+                                % (pair_market.bid + conf.price_adjustment),
+                            }
 
-                            result = api.post("https://api.qtrade.io/v1/user/buy_limit", json=req).json()
+                            result = api.post(
+                                "https://api.qtrade.io/v1/user/buy_limit", json=req
+                            ).json()
                             print(result)
-                            order_id = int(result['data']['order']['id'])
+                            order_id = int(result["data"]["order"]["id"])
                             print(f"Placed buy order {order_id}")
                             conf.orders_placed.append(order_id)
                         else:
-                            print(f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)")
+                            print(
+                                f"Insufficient balance ({c['balance']}) for {c['currency']} ({conf.buy_amount} orders)"
+                            )
 
                     # place a buy order
 
@@ -239,13 +290,19 @@ if __name__ == "__main__":
                     if age_of_order > conf.order_ttl:
                         print(f"Order {order_id} is too old ({age_of_order}), deleting")
 
-                        req = {'id': order_id}
-                        result = api.post("https://api.qtrade.io/v1/user/cancel_order", json=dict(req))
+                        req = {"id": order_id}
+                        result = api.post(
+                            "https://api.qtrade.io/v1/user/cancel_order", json=dict(req)
+                        )
                         print(result)
-                        if order_id in conf.orders_placed:  # if it has not been placed by someone else
+                        if (
+                            order_id in conf.orders_placed
+                        ):  # if it has not been placed by someone else
                             conf.orders_placed.remove(order_id)
                     else:
-                        print(f"Keeping order {order_id} in place, only {age_of_order} seconds old")
+                        print(
+                            f"Keeping order {order_id} in place, only {age_of_order} seconds old"
+                        )
                 # go through orders
 
                 print(f"Our orders: {conf.orders_placed}")

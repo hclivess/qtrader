@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import time
 import base64
 
+
 class QtradeAuth(requests.auth.AuthBase):
     def __init__(self, key):
         self.key_id, self.key = key.split(":")
@@ -21,14 +22,16 @@ class QtradeAuth(requests.auth.AuthBase):
             if isinstance(req.body, str):
                 request_details += req.body + "\n"
             else:
-                request_details += req.body.decode('utf8') + "\n"
+                request_details += req.body.decode("utf8") + "\n"
         else:
             request_details += "\n"
         request_details += self.key
         hsh = sha256(request_details.encode("utf8")).digest()
         signature = base64.b64encode(hsh)
-        req.headers.update({
-            "Authorization": f"HMAC-SHA256 {self.key_id}:{signature.decode()}",
-            "HMAC-Timestamp": timestamp
-        })
+        req.headers.update(
+            {
+                "Authorization": f"HMAC-SHA256 {self.key_id}:{signature.decode()}",
+                "HMAC-Timestamp": timestamp,
+            }
+        )
         return req
