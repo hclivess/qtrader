@@ -111,7 +111,7 @@ class Config:
         self.buy_amount = buy_amount
         self.order_ttl = ttl
         self.spread_pct_min = spread_pct_min
-        self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
+        self.market_api = self.refresh_api()
         self.currency_id = self.market_api["data"]["id"]
         self.price_adjustment = price_adjustment
         print("market_api", self.market_api)
@@ -121,6 +121,10 @@ class Config:
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
         return self.orders_count
+    
+    def refresh_api(self):
+        return api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
+
 
 
 def age(timestamp):
@@ -169,6 +173,7 @@ if __name__ == "__main__":
         for conf in active_currencies:
             try:
                 print(f"Working on {conf.pair}")
+                conf.refresh_api()
                 # Make a call to API
                 # move data to object
                 pair_market = PairMarket(conf)
@@ -220,7 +225,7 @@ if __name__ == "__main__":
                         print("Market price too low to sell now")
                     elif conf.sell_amount <= 0:
                         print(
-                            f"Not configured to sell (sell amount to {conf.sell_amount})"
+                            f"Not configured to sell (sell set to {conf.sell_amount})"
                         )
 
                     else:
@@ -291,7 +296,9 @@ if __name__ == "__main__":
                     order_id = int(order["id"])
                     age_of_order = age(order["created_at"])
                     if age_of_order > conf.order_ttl:
-                        print(f"Removing old order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old")
+                        print(
+                            f"Removing old order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
+                        )
 
                         req = {"id": order_id}
                         result = api.post(
