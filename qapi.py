@@ -242,6 +242,25 @@ def go_through_orders():
     log.warning(f"Number of {conf.name} orders: {conf.count_orders()}")
 
 
+def market_stats(conf, pair_market):
+    log.warning(f"api last refresh: {conf.last_refreshed}")
+    log.warning(f"spread: {'%.8f' % pair_market.spread}")
+    log.warning(f"ask: {pair_market.ask}")
+    log.warning(f"bid: {pair_market.bid}")
+    log.warning(f"day_avg_price: {pair_market.day_avg_price}")
+    log.warning(f"day_change: {pair_market.day_change}")
+    log.warning(f"day_high: {pair_market.day_high}")
+    log.warning(f"day_low: {pair_market.day_low}")
+    log.warning(f"day_open: {pair_market.day_open}")
+    log.warning(f"day_volume_base: {pair_market.day_volume_base}")
+    log.warning(f"day_volume_market: {pair_market.day_volume_market}")
+    log.warning(f"id: {pair_market.id}")
+    log.warning(f"id_hr: {pair_market.id_hr}")
+    log.warning(f"last_price: {pair_market.last_price}")
+    log.warning(f"day_spread: {pair_market.day_spread}")
+    log.warning(f"spread_pct: {'%.8f' % pair_market.spread_pct}")
+
+
 if __name__ == "__main__":
 
     # Create a session object to make repeated API calls easy!
@@ -288,22 +307,7 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
-                log.warning(f"api last refresh: {conf.last_refreshed}")
-                log.warning(f"spread: {'%.8f' % pair_market.spread}")
-                log.warning(f"ask: {pair_market.ask}")
-                log.warning(f"bid: { pair_market.bid}")
-                log.warning(f"day_avg_price: { pair_market.day_avg_price}")
-                log.warning(f"day_change: { pair_market.day_change}")
-                log.warning(f"day_high: { pair_market.day_high}")
-                log.warning(f"day_low: { pair_market.day_low}")
-                log.warning(f"day_open: { pair_market.day_open}")
-                log.warning(f"day_volume_base: { pair_market.day_volume_base}")
-                log.warning(f"day_volume_market: { pair_market.day_volume_market}")
-                log.warning(f"id: { pair_market.id}")
-                log.warning(f"id_hr: {pair_market.id_hr}")
-                log.warning(f"last_price: {pair_market.last_price}")
-                log.warning(f"day_spread: {pair_market.day_spread}")
-                log.warning(f"spread_pct: {'%.8f' % pair_market.spread_pct}")
+                market_stats(conf, pair_market)
 
                 order_api = api.get(
                     f"https://api.qtrade.io/v1/user/market/{conf.pair}"
