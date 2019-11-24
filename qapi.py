@@ -111,19 +111,22 @@ class Config:
         self.buy_amount = buy_amount
         self.order_ttl = ttl
         self.spread_pct_min = spread_pct_min
-        self.market_api = self.refresh_api()
+        self.market_api = None
+        self.refresh_api()
         self.currency_id = self.market_api["data"]["id"]
         self.price_adjustment = price_adjustment
         print("market_api", self.market_api)
         self.max_buy_price = max_buy_price
         self.min_sell_price = min_sell_price
+        self.last_refreshed = None
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
         return self.orders_count
     
     def refresh_api(self):
-        return api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
+        self.last_refreshed = time.time()
+        self.market_api = api.get(f"https://api.qtrade.io/v1/ticker/{self.pair}").json()
 
 
 
@@ -178,6 +181,7 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
+                print("api last refresh", conf.last_refreshed)
                 print("spread", "%.8f" % pair_market.spread)
                 print("ask", pair_market.ask)
                 print("bid", pair_market.bid)
