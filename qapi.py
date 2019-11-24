@@ -143,7 +143,7 @@ def age(timestamp):
     return int(time.time() - epoch_ts)
 
 
-def buy():
+def buy(conf, pair_market):
     # place a buy order
     if pair_market.bid >= conf.max_buy_price:
         log.warning("Market price too high to buy now")
@@ -179,7 +179,7 @@ def buy():
     # place a buy order
 
 
-def sell():
+def sell(conf, pair_market):
     # place a sell order
     if pair_market.ask <= conf.min_sell_price:
         log.warning("Market price too low to sell now")
@@ -331,8 +331,8 @@ if __name__ == "__main__":
                     balances = api.get("https://api.qtrade.io/v1/user/balances").json()
                     log.warning(balances)
 
-                    sell()
-                    buy()
+                    sell(conf, pair_market)
+                    buy(conf, pair_market)
 
             go_through_orders()
 
