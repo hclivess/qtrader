@@ -343,7 +343,7 @@ if __name__ == "__main__":
                     sell(conf, pair_market)
                     buy(conf, pair_market)
 
-                loop_pair_orders(conf, pair_orders)
+                loop_pair_orders(conf, pair_orders)  # pair conf is different
 
         except Exception as e:
             log.warning(f"Error: {e}")
