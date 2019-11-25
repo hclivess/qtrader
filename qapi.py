@@ -228,13 +228,11 @@ def loop_pair_orders(conf, pair_orders):
                 "https://api.qtrade.io/v1/user/cancel_order", json=dict(req)
             )
             log.warning(result)
-            if (
-                order_id in conf.orders_placed
-            ):  # if it has not been placed by someone else
-                for key in :
-                    if key["id"] == order_id:
-                        conf.orders_placed.remove(order_id)
-                        del conf.orders_placed[key]
+
+            for key in conf.orders_placed:
+                if key["id"] == order_id:
+                    conf.orders_placed.remove(order_id)
+                    del conf.orders_placed[key]
         else:
             log.warning(
                 f"Order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
