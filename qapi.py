@@ -240,8 +240,8 @@ def loop_pair_orders(conf, pair_orders):
                 )
     # go through orders
 
-    log.warning(f"{conf.name} orders: {conf.orders_placed}")
-    log.warning(f"Number of {conf.name} orders: {conf.count_orders()}")
+    log.warning(f"Total {conf.name} orders: {conf.orders_placed}")
+    log.warning(f"Total number of {conf.name} orders: {conf.count_orders()}")
 
 
 def market_stats(conf, pair_market):
