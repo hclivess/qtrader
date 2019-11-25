@@ -121,7 +121,7 @@ class Config:
         self.spread_pct_min = spread_pct_min
         self.market_api = None
         self.refresh_api()
-        self.currency_id = self.market_api["data"]["id"]
+        self.market_id = self.market_api["data"]["id"]
         self.price_adjustment = price_adjustment
         log.warning("market_api", self.market_api)
         self.max_buy_price = max_buy_price
@@ -160,7 +160,7 @@ def buy(conf, pair_market):
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
                 "amount": str(conf.buy_amount),
-                "market_id": conf.currency_id,
+                "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
             }
 
@@ -194,7 +194,7 @@ def sell(conf, pair_market):
             # sell order
             req = {
                 "amount": str(conf.sell_amount),
-                "market_id": conf.currency_id,
+                "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
             result = api.post(
@@ -215,28 +215,29 @@ def sell(conf, pair_market):
 def loop_pair_orders(conf, pair_orders):
     # go through orders
     for order in pair_orders.open_orders:
-        # log.warning(order["created_at"])
-        order_id = int(order["id"])
-        order_type = order["order_type"]
-        age_of_order = age(order["created_at"])
-        if age_of_order > conf.order_ttl:
-            log.warning(
-                f"Removing old {order_type} order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
-            )
-
-            req = {"id": order_id}
-            result = api.post(
-                "https://api.qtrade.io/v1/user/cancel_order", json=dict(req)
-            )
-            log.warning(result)
-
-            for entry in conf.orders_placed:
-                if entry["id"] == order_id:
-                    conf.orders_placed.remove(entry)
-        else:
-            log.warning(
-                f"{order_type} order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
-            )
+        if order["market_id"] == conf.market_id:
+            # log.warning(order["created_at"])
+            order_id = int(order["id"])
+            order_type = order["order_type"]
+            age_of_order = age(order["created_at"])
+            if age_of_order > conf.order_ttl:
+                log.warning(
+                    f"Removing old {order_type} order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
+                )
+    
+                req = {"id": order_id}
+                result = api.post(
+                    "https://api.qtrade.io/v1/user/cancel_order", json=dict(req)
+                )
+                log.warning(result)
+    
+                for entry in conf.orders_placed:
+                    if entry["id"] == order_id:
+                        conf.orders_placed.remove(entry)
+            else:
+                log.warning(
+                    f"{order_type} order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
+                )
     # go through orders
 
     log.warning(f"{conf.name} orders: {conf.orders_placed}")

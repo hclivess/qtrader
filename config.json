@@ -1,8 +1,8 @@
 [
   {"name": "BIS",
-    "sell_amount": 36,
+    "sell_amount": 90,
     "min_sell_price": 0.00001300,
-    "buy_amount": 12,
+    "buy_amount": 60,
     "max_buy_price": 0.00002000,
     "ttl": 120,
     "spread_pct_min": 1,
