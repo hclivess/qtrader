@@ -170,7 +170,7 @@ def buy(conf, pair_market):
             log.warning(result)
             order_id = int(result["data"]["order"]["id"])
             log.warning(f"Placed buy order {order_id}")
-            conf.orders_placed.append({"order_id": order_id, "order_type": "buy"})
+            conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
                 f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} orders)"
@@ -203,7 +203,7 @@ def sell(conf, pair_market):
             log.warning(result)
             order_id = result["data"]["order"]["id"]
             log.warning(f"Placed sell order {order_id}")
-            conf.orders_placed.append({"order_id": order_id, "order_type": "sell"})
+            conf.orders_placed.append({"id": order_id, "order_type": "sell"})
         else:
             log.warning(
                 f"Insufficient balance ({currency.balance} for {currency.name} ({conf.buy_amount} units)"
@@ -343,6 +343,8 @@ if __name__ == "__main__":
 
         except Exception as e:
             log.warning(f"Error: {e}")
+            raise
             time.sleep(60)
+
 
         time.sleep(60)
