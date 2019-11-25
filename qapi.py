@@ -170,7 +170,7 @@ def buy(conf, pair_market):
             log.warning(result)
             order_id = int(result["data"]["order"]["id"])
             log.warning(f"Placed buy order {order_id}")
-            conf.orders_placed.append(order_id)
+            conf.orders_placed.append({"order_id": order_id, "order_type": "buy"})
         else:
             log.warning(
                 f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} orders)"
@@ -203,7 +203,7 @@ def sell(conf, pair_market):
             log.warning(result)
             order_id = result["data"]["order"]["id"]
             log.warning(f"Placed sell order {order_id}")
-            conf.orders_placed.append(order_id)
+            conf.orders_placed.append({"order_id": order_id, "order_type": "sell"})
         else:
             log.warning(
                 f"Insufficient balance ({currency.balance} for {currency.name} ({conf.buy_amount} units)"
@@ -212,7 +212,7 @@ def sell(conf, pair_market):
     # place a sell order
 
 
-def go_through_orders():
+def loop_pair_orders(conf, pair_orders):
     # go through orders
     for order in pair_orders.open_orders:
         # log.warning(order["created_at"])
@@ -231,7 +231,10 @@ def go_through_orders():
             if (
                 order_id in conf.orders_placed
             ):  # if it has not been placed by someone else
-                conf.orders_placed.remove(order_id)
+                for key in :
+                    if key["id"] == order_id:
+                        conf.orders_placed.remove(order_id)
+                        del conf.orders_placed[key]
         else:
             log.warning(
                 f"Order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
@@ -338,7 +341,7 @@ if __name__ == "__main__":
                     sell(conf, pair_market)
                     buy(conf, pair_market)
 
-            go_through_orders()
+                loop_pair_orders(conf, pair_orders)
 
         except Exception as e:
             log.warning(f"Error: {e}")
