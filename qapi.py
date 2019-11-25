@@ -1,6 +1,8 @@
 from qtrade_client.api import QtradeAPI
 import json
 import time
+import os
+import sys
 from log import log
 from datetime import datetime
 from decimal import Decimal as dec
@@ -19,6 +21,7 @@ from dateutil import parser
 from auth import QtradeAuth
 
 DEMO = False
+DEMO_MARKETS = ["NYZO", "BIS"]
 
 getcontext()
 Context(
@@ -40,8 +43,18 @@ def part_percentage(part, whole):
 
 
 def load_credentials():
-    with open("secret") as authfile:
-        return authfile.read()
+    if os.path.exists("secret"):
+        with open("secret") as authfile:
+            return authfile.read()
+    else:
+        while True:
+            with open("secret", "w") as authfile:
+                auth = input("Enter your qTrade authentication data: ")
+                if ":" in auth:
+                    authfile.write(auth)
+                    return auth
+                else:
+                    pass
 
 
 class Order:
@@ -277,6 +290,7 @@ if __name__ == "__main__":
     api.auth_native = QtradeAPI(
         "https://api.qtrade.io", key=load_credentials()
     )  # use in the future
+
     api.auth = QtradeAuth(load_credentials())
 
     # load currencies
@@ -307,6 +321,9 @@ if __name__ == "__main__":
 
         try:
             for conf in active_currencies:
+                if DEMO and conf.name not in DEMO_MARKETS:
+                    print("Demo mode active, skipping market")
+                    break
 
                 log.warning(f"Working on {conf.pair}")
                 conf.refresh_api()
