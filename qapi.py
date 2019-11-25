@@ -220,7 +220,7 @@ def loop_pair_orders(conf, pair_orders):
         age_of_order = age(order["created_at"])
         if age_of_order > conf.order_ttl:
             log.warning(
-                f"Removing old order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
+                f"Removing old order {order}, ({age_of_order}/{conf.order_ttl}) seconds old"
             )
 
             req = {"id": order_id}
@@ -229,13 +229,12 @@ def loop_pair_orders(conf, pair_orders):
             )
             log.warning(result)
 
-            for key in conf.orders_placed:
-                if key["id"] == order_id:
-                    conf.orders_placed.remove(order_id)
-                    del conf.orders_placed[key]
+            for entry in conf.orders_placed:
+                if entry["id"] == order_id:
+                    del conf.orders_placed[entry]
         else:
             log.warning(
-                f"Order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
+                f"Order {order} retained, {age_of_order}/{conf.order_ttl} seconds old"
             )
     # go through orders
 
@@ -343,7 +342,6 @@ if __name__ == "__main__":
 
         except Exception as e:
             log.warning(f"Error: {e}")
-            raise
             time.sleep(60)
 
 
