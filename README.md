@@ -42,5 +42,3 @@ A very strong trend where there is only one type of trading going on (buys / sel
 
 In an uptrend scenario, it might be a good idea to have a higher `sell_amount` than `buy_amount` in magnitude strong enough to knock down the price back to your buy orders.
 The opposite is true for a downtrend.
-
-![alt text](thumb.png "Performance preview")
