@@ -244,6 +244,11 @@ def loop_pair_orders(conf, pair_orders):
 
 
 def market_stats(conf, pair_market):
+    log.warning(f"base_balance {pair_orders.base_balance}")
+    log.warning(f"closed_orders {pair_orders.closed_orders}")
+    log.warning(f"market_balance {pair_orders.market_balance}")
+    log.warning(f"open_orders {pair_orders.open_orders}")
+
     log.warning(f"api last refresh: {conf.last_refreshed}")
     log.warning(f"spread: {'%.8f' % pair_market.spread}")
     log.warning(f"ask: {pair_market.ask}")
@@ -308,7 +313,7 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
-                market_stats(conf, pair_market)
+
 
                 order_api = api.get(
                     f"https://api.qtrade.io/v1/user/market/{conf.pair}"
@@ -321,10 +326,9 @@ if __name__ == "__main__":
                 # pair_orders.open_orders = order_api["data"]["open_orders"]  # old way
                 pair_orders.open_orders = api.auth_native.orders(open=True)
 
-                log.warning(pair_orders.base_balance)
-                log.warning(pair_orders.closed_orders)
-                log.warning(pair_orders.market_balance)
-                log.warning(pair_orders.open_orders)
+
+
+                market_stats(conf, pair_market)
 
                 if pair_market.spread_pct < conf.spread_pct_min:
                     log.warning(
