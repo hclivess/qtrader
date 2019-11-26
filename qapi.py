@@ -6,15 +6,7 @@ import sys
 from log import log
 from datetime import datetime
 from decimal import Decimal as dec
-from decimal import (
-    getcontext,
-    Context,
-    Overflow,
-    DivisionByZero,
-    InvalidOperation,
-    ROUND_HALF_EVEN,
-)
-
+from decimal import getcontext
 import requests
 from dateutil import parser
 
@@ -23,17 +15,7 @@ from auth import QtradeAuth
 DEMO = False
 DEMO_MARKETS = ["NYZO", "BIS"]
 
-getcontext()
-Context(
-    prec=8,
-    rounding=ROUND_HALF_EVEN,
-    Emin=-999999,
-    Emax=999999,
-    capitals=1,
-    clamp=0,
-    flags=[],
-    traps=[Overflow, DivisionByZero, InvalidOperation],
-)
+getcontext().prec = 8
 
 log = log("qtrader.log", "WARNING", True)
 
@@ -107,7 +89,7 @@ def pick_currency(balances_dict, currency_name):
 class Balance:
     def __init__(self, balance_dict):
         self.name = balance_dict["currency"]
-        self.balance = float(balance_dict["balance"])
+        self.balance = dec(balance_dict["balance"])
 
 
 class Config:
@@ -128,17 +110,17 @@ class Config:
         if DEMO:
             self.sell_amount = 0
         else:
-            self.sell_amount = sell_amount
-        self.buy_amount = buy_amount
-        self.order_ttl = ttl
-        self.spread_pct_min = spread_pct_min
+            self.sell_amount = dec(sell_amount)
+        self.buy_amount = dec(buy_amount)
+        self.order_ttl = dec(ttl)
+        self.spread_pct_min = dec(spread_pct_min)
         self.market_api = None
         self.refresh_api()
         self.market_id = self.market_api["data"]["id"]
-        self.price_adjustment = price_adjustment
+        self.price_adjustment = dec(price_adjustment)
         log.warning("market_api", self.market_api)
-        self.max_buy_price = max_buy_price
-        self.min_sell_price = min_sell_price
+        self.max_buy_price = dec(max_buy_price)
+        self.min_sell_price = dec(min_sell_price)
         self.last_refreshed = None
 
     def count_orders(self):
@@ -365,6 +347,7 @@ if __name__ == "__main__":
 
         except Exception as e:
             log.warning(f"Error: {e}")
+            raise
             time.sleep(60)
 
         time.sleep(60)

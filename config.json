@@ -1,20 +1,30 @@
 [
   {"name": "BIS",
-    "sell_amount": 90,
-    "min_sell_price": 0.00001300,
-    "buy_amount": 60,
-    "max_buy_price": 0.00002000,
-    "ttl": 120,
-    "spread_pct_min": 1,
-    "price_adjustment": 0.00000001
+    "sell_amount": "90",
+    "min_sell_price": "0.00001300",
+    "buy_amount": "60",
+    "max_buy_price": "0.00002000",
+    "ttl": "120",
+    "spread_pct_min": "0.5",
+    "price_adjustment": "0.00000001"
   },
   {"name": "NYZO",
-    "sell_amount": 0,
-    "min_sell_price": 0.00002000,
-    "buy_amount": 24,
-    "max_buy_price": 0.00002000,
-    "ttl": 120,
-    "spread_pct_min": 0,
-    "price_adjustment": 0.00000001
-  }
+    "sell_amount": "0",
+    "min_sell_price": "0.00002000",
+    "buy_amount": "24",
+    "max_buy_price": "0.00002000",
+    "ttl": "120",
+    "spread_pct_min": "0",
+    "price_adjustment": "0.00000001"
+  },
+  {"name": "VEO",
+    "sell_amount": "0.01",
+    "min_sell_price": "0.005",
+    "buy_amount": "0.03",
+    "max_buy_price": "0.01",
+    "ttl": "120",
+    "spread_pct_min": "5",
+    "price_adjustment": "0.00000001"
+  }  
+  
 ]
