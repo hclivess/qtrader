@@ -346,8 +346,6 @@ if __name__ == "__main__":
                 loop_pair_orders(conf, pair_orders)  # pair conf is different
 
         except Exception as e:
-            log.warning(f"Error: {e}")
-            raise
             time.sleep(60)
 
         time.sleep(60)
