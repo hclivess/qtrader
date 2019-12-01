@@ -3,7 +3,7 @@ import json
 import time
 import os
 import sys
-from log import log
+from log import Logger
 from datetime import datetime
 from decimal import Decimal as dec
 from decimal import getcontext
@@ -17,7 +17,8 @@ DEMO_MARKETS = ["NYZO", "BIS"]
 
 getcontext().prec = 8
 
-log = log("qtrader.log", "WARNING", True)
+#log_obj = Logger("qtrader.log", "WARNING")
+log = Logger().logger
 
 
 def part_percentage(part, whole):
@@ -360,6 +361,5 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"Exception {e}")
-            time.sleep(60)
 
         time.sleep(60)

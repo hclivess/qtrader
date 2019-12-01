@@ -1,63 +1,32 @@
-import logging, sys
-from logging.handlers import RotatingFileHandler
+import logging.handlers
 
 
-def filter_status(record):
-    """"
-    Only displays log messages about status info
-    or ERROR level
-    """
-    if ("Status:" in str(record.msg)) or (record.levelname == "ERROR"):
-        return 1
-    else:
-        return 0
+class Logger:
+    def __init__(self, filename="log.log", level_string="INFO"):
 
+        if level_string == "DEBUG":
+            self.level = logging.DEBUG
+        elif level_string == "INFO":
+            self.level = logging.INFO
+        elif level_string == "WARNING":
+            self.level = logging.WARNING
+        elif level_string == "ERROR":
+            self.level = logging.ERROR
+        else:
+            self.level = logging.NOTSET
 
-def log(logFile, level_input="WARNING", terminal_output=False):
-    if level_input == "NOTSET":
-        level = logging.NOTSET
-    if level_input == "DEBUG":
-        level = logging.DEBUG
-    if level_input == "INFO":
-        level = logging.INFO
-    if level_input == "WARNING":
-        level = logging.WARNING
-    if level_input == "ERROR":
-        level = logging.ERROR
-    if level_input == "CRITICAL":
-        level = logging.CRITICAL
+        self.logger = self.define_logger(filename)
 
-    log_formatter = logging.Formatter(
-        "%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s"
-    )
-    my_handler = RotatingFileHandler(
-        logFile,
-        mode="a",
-        maxBytes=5 * 1024 * 1024,
-        backupCount=2,
-        encoding="utf-8",
-        delay=0,
-    )
-    my_handler.setFormatter(log_formatter)
-    my_handler.setLevel(level)
-    app_log = logging.getLogger("root")
-    app_log.setLevel(level)
-    app_log.addHandler(my_handler)
+        self.logger.info(f"Logging set to {self.level}, {level_string}")
 
-    # This part is what goes on console.
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    # TODO: We could have 2 level in the config, one for screen and one for files.
-    print("Logging level: {} ({})".format(level_input, level))
-    if terminal_output != True:
-        ch.addFilter(filter_status)
-        # No need for complete func and line info here.
-        formatter = logging.Formatter("%(asctime)s %(message)s")
-    else:
-        formatter = logging.Formatter(
-            "%(asctime)s %(funcName)s(%(lineno)d) %(message)s"
-        )
-    ch.setFormatter(formatter)
-    app_log.addHandler(ch)
-
-    return app_log
+    def define_logger(self, filename):
+        logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+        rootLogger = logging.getLogger()
+        rootLogger.setLevel(self.level)
+        fileHandler = logging.FileHandler(filename)
+        fileHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(fileHandler)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(consoleHandler)
+        return rootLogger
