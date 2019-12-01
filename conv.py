@@ -1,23 +1,17 @@
-# import datetime
+class a:
+    def __init__(self):
+        self.value_a = 10
 
-from datetime import datetime
+class b:
+    def __init__(self, value_a, obj_a):
+        self.value_b = value_a
+        self.obj_a = obj_a
 
+a_instance = a()
+b_instance = b(a_instance.value_a, a_instance)
 
-string = "2019-11-20T10:00:28.584127Z"
-string = string.replace("T", " ").replace("Z", "")
+print(b_instance.value_b)
+a_instance.value_a = 20
+print(b_instance.value_b)
 
-print(string)
-
-now = datetime.fromisoformat(string)
-
-# get current date
-# now = datetime.now()
-
-
-# convert current date into timestamp
-timestamp = datetime.timestamp(now)
-
-print("Date and Time :", now)
-print("Timestamp:", timestamp)
-
-print("asdasdf.645645645".strip("."))
+print(b_instance.obj_a.value_a)

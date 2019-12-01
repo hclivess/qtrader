@@ -34,5 +34,17 @@
     "price_adjustment": "0.00000001",
     "max_stash": "10",
     "min_stash": "0.1"
+  },
+    {
+    "name": "ARO",
+    "sell_amount": "1500",
+    "min_sell_price": "0.0000001",
+    "buy_amount": "1500",
+    "max_buy_price": "0.00000015",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000000",
+    "max_stash": "20000",
+    "min_stash": "10000"
   }
 ]
