@@ -103,6 +103,8 @@ class Config:
         price_adjustment,
         max_buy_price,
         min_sell_price,
+        max_stash,
+        min_stash
     ):
         self.orders_placed = []
         self.name = name
@@ -122,6 +124,8 @@ class Config:
         self.max_buy_price = dec(max_buy_price)
         self.min_sell_price = dec(min_sell_price)
         self.last_refreshed = None
+        self.max_stash = dec(max_stash)
+        self.min_stash = dec(min_stash)
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -144,13 +148,15 @@ def buy(conf, pair_market):
         log.warning("Market price too high to buy now")
     elif conf.buy_amount <= 0:
         log.warning(f"Not configured to buy (buy set to {conf.buy_amount})")
+
     else:
         currency = pick_currency(balances, "BTC")
 
+        if currency.balance >= conf.max_stash:
+            log.warning("Maximum stash reached, will not create new buy orders")
+
         # log.warning(balance["balance"])
-        if (
-            currency.balance > conf.buy_amount * pair_market.bid
-        ):  # if one can afford to buy trade_buy_amount
+        elif currency.balance > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
@@ -168,7 +174,7 @@ def buy(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
-                f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} orders)"
+                f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} units)"
             )
 
     # place a buy order
@@ -178,13 +184,18 @@ def sell(conf, pair_market):
     # place a sell order
     if pair_market.ask <= conf.min_sell_price:
         log.warning("Market price too low to sell now")
+
     elif conf.sell_amount <= 0:
         log.warning(f"Not configured to sell (sell set to {conf.sell_amount})")
 
     else:
         currency = pick_currency(balances, conf.name)
+
+        if currency.balance <= conf.min_stash:
+            log.warning("Minimum stash reached, will not create new sell orders")
+
         # log.warning(balance["balance"])
-        if currency.balance > conf.sell_amount:
+        elif currency.balance > conf.sell_amount:
 
             # sell order
             req = {
@@ -201,7 +212,7 @@ def sell(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "sell"})
         else:
             log.warning(
-                f"Insufficient balance ({currency.balance} for {currency.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} units)"
             )
 
     # place a sell order
@@ -292,6 +303,8 @@ if __name__ == "__main__":
                     price_adjustment=dec(currency["price_adjustment"]),
                     max_buy_price=currency["max_buy_price"],
                     min_sell_price=currency["min_sell_price"],
+                    max_stash=currency["max_stash"],
+                    min_stash=currency["min_stash"]
                 )
             )
 
@@ -346,6 +359,7 @@ if __name__ == "__main__":
                 loop_pair_orders(conf, pair_orders)  # pair conf is different
 
         except Exception as e:
+            print(f"Exception {e}")
             time.sleep(60)
 
         time.sleep(60)
