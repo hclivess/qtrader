@@ -183,7 +183,7 @@ def buy(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
-                f"Insufficient balance ({'%.8f' % currency.balance}) for {conf.name} ({'%.8f' % conf.buy_amount} units)"
+                f"Insufficient balance ({currency.balance}) for {conf.name} ({conf.buy_amount} units)"
             )
 
     # place a buy order
