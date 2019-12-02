@@ -1,4 +1,5 @@
 from qtrade_client.api import QtradeAPI
+import random
 import json
 import time
 import os
@@ -105,7 +106,8 @@ class Config:
         max_buy_price,
         min_sell_price,
         max_stash,
-        min_stash
+        min_stash,
+        random_size
     ):
         self.orders_placed = []
         self.name = name
@@ -127,6 +129,7 @@ class Config:
         self.last_refreshed = None
         self.max_stash = dec(max_stash)
         self.min_stash = dec(min_stash)
+        self.random_size = dec(random_size)
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -161,7 +164,7 @@ def buy(conf, pair_market):
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
-                "amount": str(conf.buy_amount),
+                "amount": str(conf.buy_amount + randomize(conf.random_size)),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
             }
@@ -180,6 +183,8 @@ def buy(conf, pair_market):
 
     # place a buy order
 
+def randomize(random_size_value):
+    return dec(random.uniform(float(-random_size_value), float(random_size_value)))
 
 def sell(conf, pair_market):
     # place a sell order
@@ -200,7 +205,7 @@ def sell(conf, pair_market):
 
             # sell order
             req = {
-                "amount": str(conf.sell_amount),
+                "amount": str(conf.sell_amount + randomize(conf.random_size)),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
@@ -231,13 +236,13 @@ def loop_pair_orders(conf, pair_orders):
                 log.warning(
                     f"Removing old {order_type} order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
                 )
-    
+
                 req = {"id": order_id}
                 result = api.post(
                     "https://api.qtrade.io/v1/user/cancel_order", json=dict(req)
                 )
                 log.warning(result)
-    
+
                 for entry in conf.orders_placed:
                     if entry["id"] == order_id:
                         conf.orders_placed.remove(entry)
@@ -305,7 +310,8 @@ if __name__ == "__main__":
                     max_buy_price=currency["max_buy_price"],
                     min_sell_price=currency["min_sell_price"],
                     max_stash=currency["max_stash"],
-                    min_stash=currency["min_stash"]
+                    min_stash=currency["min_stash"],
+                    random_size=currency["random_size"]
                 )
             )
 
@@ -361,5 +367,6 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"Exception {e}")
+            raise
 
         time.sleep(60)

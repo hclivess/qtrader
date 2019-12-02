@@ -54,7 +54,8 @@ The opposite is true for a downtrend.
     "spread_pct_min": "1",
     "price_adjustment": "0.00000001",
     "max_stash": "5000",
-    "min_stash": "500"
+    "min_stash": "500",
+    "random_size": "5"
   },
   {
     "name": "NYZO",
@@ -66,7 +67,8 @@ The opposite is true for a downtrend.
     "spread_pct_min": "1",
     "price_adjustment": "0.00000001",
     "max_stash": "10000",
-    "min_stash": "1000"
+    "min_stash": "1000",
+    "random_size": "5"
   },
   {
     "name": "VEO",
@@ -78,7 +80,8 @@ The opposite is true for a downtrend.
     "spread_pct_min": "1",
     "price_adjustment": "0.00000001",
     "max_stash": "10",
-    "min_stash": "0.1"
+    "min_stash": "0.1",
+    "random_size": "0.005"
   },
     {
     "name": "ARO",
@@ -90,7 +93,8 @@ The opposite is true for a downtrend.
     "spread_pct_min": "1",
     "price_adjustment": "0.00000000",
     "max_stash": "20000",
-    "min_stash": "10000"
+    "min_stash": "10000",
+    "random_size": "20"
   }
 ]
 ```
