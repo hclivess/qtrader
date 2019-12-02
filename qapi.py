@@ -120,7 +120,7 @@ class Config:
         else:
             self.sell_amount = float(sell_amount)
         self.buy_amount = float(buy_amount)
-        self.order_ttl = float(ttl)
+        self.order_ttl = int(ttl)
         self.spread_pct_min = float(spread_pct_min)
         self.market_api = None
         self.refresh_api()
