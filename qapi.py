@@ -151,7 +151,7 @@ def age(timestamp):
 
 def buy(conf, pair_market):
     # place a buy order
-    log.warning("Placing a buy order")
+    log.warning("Checking to place a buy order")
     if pair_market.bid >= conf.max_buy_price:
         log.warning("Market price too high to buy now")
     elif conf.buy_amount <= 0:
@@ -187,7 +187,7 @@ def buy(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
-                f"Insufficient balance ({btc.balance}) for {conf.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({'%.8f' % btc.balance}) for {conf.name} ({conf.buy_amount} units)"
             )
 
     # place a buy order
@@ -197,7 +197,7 @@ def randomize(random_size_value):
     return randomized
 
 def sell(conf, pair_market):
-    log.warning("Placing a sell order")
+    log.warning("Checking to place a sell order")
     # place a sell order
     if pair_market.ask <= conf.min_sell_price:
         log.warning("Market price too low to sell now")
@@ -231,7 +231,7 @@ def sell(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "sell"})
         else:
             log.warning(
-                f"Insufficient balance ({altcoin.balance}) for {conf.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({'%.8f' % altcoin.balance}) for {conf.name} ({conf.buy_amount} units)"
             )
 
     # place a sell order
@@ -275,7 +275,7 @@ def market_stats(conf, pair_market):
     log.warning(f"market_balance {pair_orders.market_balance}")
     log.warning(f"open_orders {pair_orders.open_orders}")
 
-    log.warning(f"api last refresh: {conf.last_refreshed}")
+    log.warning(f"api last refresh: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(conf.last_refreshed))}")
     log.warning(f"spread: {'%.8f' % pair_market.spread}")
     log.warning(f"ask: {'%.8f' % pair_market.ask}")
     log.warning(f"bid: {'%.8f' % pair_market.bid}")
