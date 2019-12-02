@@ -6,8 +6,7 @@ import os
 import sys
 from log import Logger
 from datetime import datetime
-from decimal import Decimal as dec
-from decimal import getcontext
+
 import requests
 from dateutil import parser
 
@@ -16,14 +15,12 @@ from auth import QtradeAuth
 DEMO = False
 DEMO_MARKETS = ["NYZO", "BIS"]
 
-getcontext().prec = 8
-
 log_obj = Logger("qtrader.log", "WARNING")
 log = log_obj.logger
 
 
 def part_percentage(part, whole):
-    return dec(100.0) * part / whole
+    return float(100.0) * part / whole
 
 
 def load_credentials():
@@ -64,21 +61,21 @@ class PairOrders:
 
 class PairMarket:
     def __init__(self, configuration):
-        self.ask = dec(conf.market_api["data"]["ask"])
-        self.bid = dec(conf.market_api["data"]["bid"])
-        self.spread = dec(abs(self.ask - self.bid))
+        self.ask = float(conf.market_api["data"]["ask"])
+        self.bid = float(conf.market_api["data"]["bid"])
+        self.spread = float(abs(self.ask - self.bid))
 
-        self.day_avg_price = dec(conf.market_api["data"]["day_avg_price"])
-        self.day_change = dec(conf.market_api["data"]["day_change"])
-        self.day_high = dec(conf.market_api["data"]["day_high"])
-        self.day_low = dec(conf.market_api["data"]["day_low"])
-        self.day_open = dec(conf.market_api["data"]["day_open"])
-        self.day_volume_base = dec(conf.market_api["data"]["day_volume_base"])
-        self.day_volume_market = dec(conf.market_api["data"]["day_volume_market"])
+        self.day_avg_price = float(conf.market_api["data"]["day_avg_price"])
+        self.day_change = float(conf.market_api["data"]["day_change"])
+        self.day_high = float(conf.market_api["data"]["day_high"])
+        self.day_low = float(conf.market_api["data"]["day_low"])
+        self.day_open = float(conf.market_api["data"]["day_open"])
+        self.day_volume_base = float(conf.market_api["data"]["day_volume_base"])
+        self.day_volume_market = float(conf.market_api["data"]["day_volume_market"])
         self.id = int(conf.market_api["data"]["id"])
         self.id_hr = conf.market_api["data"]["id_hr"]
-        self.last_price = dec(conf.market_api["data"]["last"])
-        self.day_spread = dec(abs(self.day_high - self.day_low))
+        self.last_price = float(conf.market_api["data"]["last"])
+        self.day_spread = float(abs(self.day_high - self.day_low))
         self.spread_pct = 100 - part_percentage(self.bid, self.ask)
 
 
@@ -91,7 +88,7 @@ def pick_currency(balances_dict, currency_name):
 class Balance:
     def __init__(self, balance_dict):
         self.name = balance_dict["currency"]
-        self.balance = dec(balance_dict["balance"])
+        self.balance = float(balance_dict["balance"])
 
 
 class Config:
@@ -115,21 +112,21 @@ class Config:
         if DEMO:
             self.sell_amount = 0
         else:
-            self.sell_amount = dec(sell_amount)
-        self.buy_amount = dec(buy_amount)
-        self.order_ttl = dec(ttl)
-        self.spread_pct_min = dec(spread_pct_min)
+            self.sell_amount = float(sell_amount)
+        self.buy_amount = float(buy_amount)
+        self.order_ttl = float(ttl)
+        self.spread_pct_min = float(spread_pct_min)
         self.market_api = None
         self.refresh_api()
         self.market_id = self.market_api["data"]["id"]
-        self.price_adjustment = dec(price_adjustment)
+        self.price_adjustment = float(price_adjustment)
         log.warning("market_api", self.market_api)
-        self.max_buy_price = dec(max_buy_price)
-        self.min_sell_price = dec(min_sell_price)
+        self.max_buy_price = float(max_buy_price)
+        self.min_sell_price = float(min_sell_price)
         self.last_refreshed = None
-        self.max_stash = dec(max_stash)
-        self.min_stash = dec(min_stash)
-        self.random_size = dec(random_size)
+        self.max_stash = float(max_stash)
+        self.min_stash = float(min_stash)
+        self.random_size = float(random_size)
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -164,7 +161,7 @@ def buy(conf, pair_market):
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
-                "amount": str(conf.buy_amount + randomize(conf.random_size)),
+                "amount": "%.8f" % (conf.buy_amount + randomize(conf.random_size)),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
             }
@@ -178,13 +175,13 @@ def buy(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
-                f"Insufficient balance ({currency.balance}) for {currency.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({'%.8f' % currency.balance}) for {currency.name} ({'%.8f' % conf.buy_amount} units)"
             )
 
     # place a buy order
 
 def randomize(random_size_value):
-    return dec(random.uniform(float(-random_size_value), float(random_size_value)))
+    return random.uniform(float(-random_size_value), float(random_size_value))
 
 def sell(conf, pair_market):
     # place a sell order
@@ -205,7 +202,7 @@ def sell(conf, pair_market):
 
             # sell order
             req = {
-                "amount": str(conf.sell_amount + randomize(conf.random_size)),
+                "amount": "%.8f" %  (conf.sell_amount + randomize(conf.random_size)),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
@@ -264,19 +261,19 @@ def market_stats(conf, pair_market):
 
     log.warning(f"api last refresh: {conf.last_refreshed}")
     log.warning(f"spread: {'%.8f' % pair_market.spread}")
-    log.warning(f"ask: {pair_market.ask}")
-    log.warning(f"bid: {pair_market.bid}")
-    log.warning(f"day_avg_price: {pair_market.day_avg_price}")
-    log.warning(f"day_change: {pair_market.day_change}")
-    log.warning(f"day_high: {pair_market.day_high}")
-    log.warning(f"day_low: {pair_market.day_low}")
-    log.warning(f"day_open: {pair_market.day_open}")
-    log.warning(f"day_volume_base: {pair_market.day_volume_base}")
-    log.warning(f"day_volume_market: {pair_market.day_volume_market}")
-    log.warning(f"id: {pair_market.id}")
+    log.warning(f"ask: {'%.8f' % pair_market.ask}")
+    log.warning(f"bid: {'%.8f' % pair_market.bid}")
+    log.warning(f"day_avg_price: {'%.8f' % pair_market.day_avg_price}")
+    log.warning(f"day_change: {'%.8f' % pair_market.day_change}")
+    log.warning(f"day_high: {'%.8f' % pair_market.day_high}")
+    log.warning(f"day_low: {'%.8f' % pair_market.day_low}")
+    log.warning(f"day_open: {'%.8f' % pair_market.day_open}")
+    log.warning(f"day_volume_base: {'%.8f' % pair_market.day_volume_base}")
+    log.warning(f"day_volume_market: {'%.8f' % pair_market.day_volume_market}")
+    log.warning(f"id: {'%.8f' % pair_market.id}")
     log.warning(f"id_hr: {pair_market.id_hr}")
-    log.warning(f"last_price: {pair_market.last_price}")
-    log.warning(f"day_spread: {pair_market.day_spread}")
+    log.warning(f"last_price: {'%.8f' % pair_market.last_price}")
+    log.warning(f"day_spread: {'%.8f' % pair_market.day_spread}")
     log.warning(f"spread_pct: {'%.8f' % pair_market.spread_pct}")
 
 
@@ -306,7 +303,7 @@ if __name__ == "__main__":
                     buy_amount=currency["buy_amount"],
                     ttl=currency["ttl"],
                     spread_pct_min=currency["spread_pct_min"],
-                    price_adjustment=dec(currency["price_adjustment"]),
+                    price_adjustment=float(currency["price_adjustment"]),
                     max_buy_price=currency["max_buy_price"],
                     min_sell_price=currency["min_sell_price"],
                     max_stash=currency["max_stash"],
