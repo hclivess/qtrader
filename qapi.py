@@ -17,8 +17,8 @@ DEMO_MARKETS = ["NYZO", "BIS"]
 
 getcontext().prec = 8
 
-#log_obj = Logger("qtrader.log", "WARNING")
-log = Logger().logger
+log_obj = Logger("qtrader.log", "WARNING")
+log = log_obj.logger
 
 
 def part_percentage(part, whole):

@@ -1,13 +1,6 @@
 # qTrader
 Welcome to the qTrade trading bot.
 
-## Demo
-
-### What does a demo offer?
-Demo version is available for free.
-It allows you to set buy orders at best possible price for $BIS and $NYZO. No selling is available. It lets you accumulate at the best possible price in a given moment.
-
-# Full version
 ### What does this bot offer?
 This bot places buy and sell orders for you at the best possible price, and at the best possible exposure.
 
