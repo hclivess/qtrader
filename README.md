@@ -53,7 +53,7 @@ Install Python 3.7
 cmd (admin)
 ```
 python -m pip install python-dateutil
---upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git
+python -m pip install --upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git
 ```
 
 
