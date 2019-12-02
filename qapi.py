@@ -151,27 +151,31 @@ def age(timestamp):
 
 def buy(conf, pair_market):
     # place a buy order
+    log.warning("Placing a buy order")
     if pair_market.bid >= conf.max_buy_price:
         log.warning("Market price too high to buy now")
     elif conf.buy_amount <= 0:
         log.warning(f"Not configured to buy (buy set to {conf.buy_amount})")
 
     else:
-        currency = pick_currency(balances, "BTC")
+        btc = pick_currency(balances, "BTC")
+        altcoin = pick_currency(balances, conf.name)
         random_value = randomize(conf.random_size)
+        buy_value = conf.buy_amount + random_value
+        final_price = pair_market.bid + conf.price_adjustment
 
-        if currency.balance >= conf.max_stash:
+        if altcoin.balance >= conf.max_stash:
             log.warning("Maximum stash reached, will not create new buy orders")
 
         # log.warning(balance["balance"])
 
-        elif currency.balance > (conf.buy_amount + random_value) * pair_market.bid:  # if one can afford to buy trade_buy_amount
+        elif btc.balance >= buy_value * final_price:  # if one can afford to buy
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
-                "amount": "%.4f" % (conf.buy_amount + random_value),
+                "amount": "%.4f" % buy_value,
                 "market_id": conf.market_id,
-                "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
+                "price": "%.8f" % final_price,
             }
 
             result = api.post(
@@ -183,7 +187,7 @@ def buy(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "buy"})
         else:
             log.warning(
-                f"Insufficient balance ({currency.balance}) for {conf.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({btc.balance}) for {conf.name} ({conf.buy_amount} units)"
             )
 
     # place a buy order
@@ -193,6 +197,7 @@ def randomize(random_size_value):
     return randomized
 
 def sell(conf, pair_market):
+    log.warning("Placing a sell order")
     # place a sell order
     if pair_market.ask <= conf.min_sell_price:
         log.warning("Market price too low to sell now")
@@ -201,21 +206,21 @@ def sell(conf, pair_market):
         log.warning(f"Not configured to sell (sell set to {conf.sell_amount})")
 
     else:
-        currency = pick_currency(balances, conf.name)
+        altcoin = pick_currency(balances, conf.name)
         random_value = randomize(conf.random_size)
-        #print(currency.balance, conf.sell_amount + random_value)
+        sell_value = conf.sell_amount + random_value
+        final_price = pair_market.ask - conf.price_adjustment
 
-        if currency.balance <= conf.min_stash:
+        if altcoin.balance <= conf.min_stash:
             log.warning("Minimum stash reached, will not create new sell orders")
 
-        # log.warning(balance["balance"])
-        elif currency.balance > conf.sell_amount + random_value:
+        elif altcoin.balance >= sell_value:
 
             # sell order
             req = {
-                "amount": "%.4f" % (conf.sell_amount + random_value),
+                "amount": "%.4f" % sell_value,
                 "market_id": conf.market_id,
-                "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
+                "price": "%.8f" % final_price,
             }
             result = api.post(
                 "https://api.qtrade.io/v1/user/sell_limit", json=req
@@ -226,7 +231,7 @@ def sell(conf, pair_market):
             conf.orders_placed.append({"id": order_id, "order_type": "sell"})
         else:
             log.warning(
-                f"Insufficient balance ({currency.balance}) for {conf.name} ({conf.buy_amount} units)"
+                f"Insufficient balance ({altcoin.balance}) for {conf.name} ({conf.buy_amount} units)"
             )
 
     # place a sell order
