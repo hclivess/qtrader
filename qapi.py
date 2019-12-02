@@ -152,16 +152,18 @@ def buy(conf, pair_market):
 
     else:
         currency = pick_currency(balances, "BTC")
+        random_value = randomize(conf.random_size)
 
         if currency.balance >= conf.max_stash:
             log.warning("Maximum stash reached, will not create new buy orders")
 
         # log.warning(balance["balance"])
-        elif currency.balance > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
+
+        elif currency.balance + random_value > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
-                "amount": "%.8f" % (conf.buy_amount + randomize(conf.random_size)),
+                "amount": "%.8f" % (conf.buy_amount + random_value),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
             }
@@ -193,16 +195,17 @@ def sell(conf, pair_market):
 
     else:
         currency = pick_currency(balances, conf.name)
+        random_value = randomize(conf.random_size)
 
         if currency.balance <= conf.min_stash:
             log.warning("Minimum stash reached, will not create new sell orders")
 
         # log.warning(balance["balance"])
-        elif currency.balance > conf.sell_amount:
+        elif currency.balance + random_value > conf.sell_amount:
 
             # sell order
             req = {
-                "amount": "%.8f" %  (conf.sell_amount + randomize(conf.random_size)),
+                "amount": "%.8f" %  (conf.sell_amount + random_value),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
