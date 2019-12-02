@@ -159,7 +159,7 @@ def buy(conf, pair_market):
 
         # log.warning(balance["balance"])
 
-        elif currency.balance + random_value > conf.buy_amount * pair_market.bid:  # if one can afford to buy trade_buy_amount
+        elif currency.balance > (conf.buy_amount + random_value) * pair_market.bid:  # if one can afford to buy trade_buy_amount
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
@@ -201,7 +201,7 @@ def sell(conf, pair_market):
             log.warning("Minimum stash reached, will not create new sell orders")
 
         # log.warning(balance["balance"])
-        elif currency.balance + random_value > conf.sell_amount:
+        elif currency.balance > conf.sell_amount + random_value:
 
             # sell order
             req = {
@@ -273,7 +273,7 @@ def market_stats(conf, pair_market):
     log.warning(f"day_open: {'%.8f' % pair_market.day_open}")
     log.warning(f"day_volume_base: {'%.8f' % pair_market.day_volume_base}")
     log.warning(f"day_volume_market: {'%.8f' % pair_market.day_volume_market}")
-    log.warning(f"id: {'%.8f' % pair_market.id}")
+    log.warning(f"id: {pair_market.id}")
     log.warning(f"id_hr: {pair_market.id_hr}")
     log.warning(f"last_price: {'%.8f' % pair_market.last_price}")
     log.warning(f"day_spread: {'%.8f' % pair_market.day_spread}")
