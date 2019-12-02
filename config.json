@@ -41,7 +41,7 @@
     {
     "name": "ARO",
     "sell_amount": "1500",
-    "min_sell_price": "0.0000001",
+    "min_sell_price": "0.00000010",
     "buy_amount": "1500",
     "max_buy_price": "0.00000015",
     "ttl": "120",
@@ -49,6 +49,19 @@
     "price_adjustment": "0.00000000",
     "max_stash": "20000",
     "min_stash": "10000",
+    "random_size": "20"
+  },
+  {
+    "name": "PASC",
+    "sell_amount": "100",
+    "min_sell_price": "0.00000700",
+    "buy_amount": "100",
+    "max_buy_price": "0.00001000",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000001",
+    "max_stash": "2000",
+    "min_stash": "0",
     "random_size": "20"
   }
 ]

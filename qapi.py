@@ -205,7 +205,7 @@ def sell(conf, pair_market):
 
             # sell order
             req = {
-                "amount": "%.8f" %  (conf.sell_amount + random_value),
+                "amount": "%.8f" % (conf.sell_amount + random_value),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
