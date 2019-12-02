@@ -92,6 +92,6 @@ The opposite is true for a downtrend.
     "max_stash": "20000",
     "min_stash": "10000"
   }
-]```
-
+]
+```
 ![alt text](thumb.png "Thumbnail")
