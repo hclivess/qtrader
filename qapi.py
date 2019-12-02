@@ -377,6 +377,8 @@ if __name__ == "__main__":
                     buy(conf, pair_market)
 
                 loop_pair_orders(conf, pair_orders)  # pair conf is different
+                log.warning("Taking a break for 10s")
+                time.sleep(10)
 
         except Exception as e:
             print(f"Exception {e}")

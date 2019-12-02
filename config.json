@@ -14,10 +14,10 @@
   },
   {
     "name": "NYZO",
-    "sell_amount": "150",
+    "sell_amount": "50",
     "min_sell_price": "0.00002000",
-    "buy_amount": "150",
-    "max_buy_price": "0.00002000",
+    "buy_amount": "50",
+    "max_buy_price": "0.00003000",
     "ttl": "120",
     "spread_pct_min": "1",
     "price_adjustment": "0.00000001",
