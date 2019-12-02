@@ -1,0 +1,2 @@
+python-dateutil
+pip3 install --upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git

@@ -35,3 +35,63 @@ A very strong trend where there is only one type of trading going on (buys / sel
 
 In an uptrend scenario, it might be a good idea to have a higher `sell_amount` than `buy_amount` in magnitude strong enough to knock down the price back to your buy orders.
 The opposite is true for a downtrend.
+
+### Requirements
+`python-dateutil`
+
+`pip3 install --upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git`
+
+### Configuration example
+```
+[
+  {
+    "name": "BIS",
+    "sell_amount": "150",
+    "min_sell_price": "0.00001400",
+    "buy_amount": "150",
+    "max_buy_price": "0.00002000",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000001",
+    "max_stash": "5000",
+    "min_stash": "500"
+  },
+  {
+    "name": "NYZO",
+    "sell_amount": "150",
+    "min_sell_price": "0.00002000",
+    "buy_amount": "150",
+    "max_buy_price": "0.00002000",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000001",
+    "max_stash": "10000",
+    "min_stash": "1000"
+  },
+  {
+    "name": "VEO",
+    "sell_amount": "0.15",
+    "min_sell_price": "0.005",
+    "buy_amount": "0.1",
+    "max_buy_price": "0.15",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000001",
+    "max_stash": "10",
+    "min_stash": "0.1"
+  },
+    {
+    "name": "ARO",
+    "sell_amount": "1500",
+    "min_sell_price": "0.0000001",
+    "buy_amount": "1500",
+    "max_buy_price": "0.00000015",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000000",
+    "max_stash": "20000",
+    "min_stash": "10000"
+  }
+]```
+
+![alt text](thumb.png "Thumbnail")
