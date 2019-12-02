@@ -8,7 +8,7 @@ This bot places buy and sell orders for you at the best possible price, and at t
 Market spread is an inefficiency, which can be exploited by covering both sides of it while the difference is higher than market fees. Nothing new.
 
 ### How do I run this bot?
-On start, you will be asked for your API credentials. You need to obtain these from [https://qtrade.io/settings/api_keys](https://qtrade.io/settings/api_keys)
+Run `qapi.py` in Python3. On start, you will be asked for your API credentials. You need to obtain these from [https://qtrade.io/settings/api_keys](https://qtrade.io/settings/api_keys)
 There is a configuration file `config.json` where you set your trading parameters.
 
 ### Config File
