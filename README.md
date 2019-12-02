@@ -36,10 +36,25 @@ A very strong trend where there is only one type of trading going on (buys / sel
 In an uptrend scenario, it might be a good idea to have a higher `sell_amount` than `buy_amount` in magnitude strong enough to knock down the price back to your buy orders.
 The opposite is true for a downtrend.
 
-### Requirements
-`python-dateutil`
+### Pre-requisites
 
-`pip3 install --upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git`
+#### Linux
+
+```
+sudo apt-get install python3.7
+python3.7 -m pip install python-dateutil
+python3.7 -m pip install --upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git`
+```
+
+#### Windows
+
+Install Python 3.7
+cmd (admin)
+```
+python -m pip install python-dateutil
+--upgrade --user git+https://github.com/qtrade-exchange/qtrade-py-client.git
+```
+
 
 ### Configuration example
 ```
