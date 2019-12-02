@@ -12,6 +12,7 @@ from dateutil import parser
 
 from auth import QtradeAuth
 
+DEBUG = True
 DEMO = False
 DEMO_MARKETS = ["NYZO", "BIS"]
 
@@ -80,9 +81,14 @@ class PairMarket:
 
 
 def pick_currency(balances_dict, currency_name):
+
     for entry in balances_dict["data"]["balances"]:
         if entry["currency"] == currency_name:
             return Balance(entry)
+
+    else:
+        entry = {"currency": currency_name, "balance": 0}
+        return Balance(entry)
 
 
 class Balance:
@@ -163,7 +169,7 @@ def buy(conf, pair_market):
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
-                "amount": "%.8f" % (conf.buy_amount + random_value),
+                "amount": "%.4f" % (conf.buy_amount + random_value),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.bid + conf.price_adjustment),
             }
@@ -183,7 +189,8 @@ def buy(conf, pair_market):
     # place a buy order
 
 def randomize(random_size_value):
-    return random.uniform(float(-random_size_value), float(random_size_value))
+    randomized = float("%.4f" % random.uniform((-random_size_value), (random_size_value)))
+    return randomized
 
 def sell(conf, pair_market):
     # place a sell order
@@ -196,6 +203,7 @@ def sell(conf, pair_market):
     else:
         currency = pick_currency(balances, conf.name)
         random_value = randomize(conf.random_size)
+        #print(currency.balance, conf.sell_amount + random_value)
 
         if currency.balance <= conf.min_stash:
             log.warning("Minimum stash reached, will not create new sell orders")
@@ -205,7 +213,7 @@ def sell(conf, pair_market):
 
             # sell order
             req = {
-                "amount": "%.8f" % (conf.sell_amount + random_value),
+                "amount": "%.4f" % (conf.sell_amount + random_value),
                 "market_id": conf.market_id,
                 "price": "%.8f" % (pair_market.ask - conf.price_adjustment),
             }
@@ -367,5 +375,7 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"Exception {e}")
+            if DEBUG:
+                raise
 
         time.sleep(60)
