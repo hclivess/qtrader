@@ -49,6 +49,7 @@ python3.7 -m pip install --upgrade --user git+https://github.com/qtrade-exchange
 #### Windows
 
 Install Python 3.7
+
 cmd (admin)
 ```
 python -m pip install python-dateutil
