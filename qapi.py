@@ -271,7 +271,7 @@ def loop_pair_orders(conf, pair_orders):
 
 def market_stats(conf, pair_market):
     log.warning(f"base_balance {pair_orders.base_balance}")
-    log.warning(f"closed_orders {pair_orders.closed_orders}")
+    log.warning(f"closed_orders {pair_orders.closed_orders[:10]}")
     log.warning(f"market_balance {pair_orders.market_balance}")
     log.warning(f"open_orders {pair_orders.open_orders}")
 
