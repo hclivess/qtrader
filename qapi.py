@@ -388,4 +388,5 @@ if __name__ == "__main__":
             if DEBUG:
                 raise
 
+        log.warning("Loop ended, waiting for 60 seconds")
         time.sleep(60)
