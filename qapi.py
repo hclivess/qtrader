@@ -12,7 +12,7 @@ from dateutil import parser
 
 from auth import QtradeAuth
 
-DEBUG = True
+DEBUG = False
 DEMO = False
 DEMO_MARKETS = ["NYZO", "BIS"]
 
