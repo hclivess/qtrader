@@ -58,60 +58,6 @@ python -m pip install --upgrade --user git+https://github.com/qtrade-exchange/qt
 
 
 ### Configuration example
-```
-[
-  {
-    "name": "BIS",
-    "sell_amount": "150",
-    "min_sell_price": "0.00001400",
-    "buy_amount": "150",
-    "max_buy_price": "0.00002000",
-    "ttl": "120",
-    "spread_pct_min": "1",
-    "price_adjustment": "0.00000001",
-    "max_stash": "5000",
-    "min_stash": "500",
-    "random_size": "5"
-  },
-  {
-    "name": "NYZO",
-    "sell_amount": "150",
-    "min_sell_price": "0.00002000",
-    "buy_amount": "150",
-    "max_buy_price": "0.00002000",
-    "ttl": "120",
-    "spread_pct_min": "1",
-    "price_adjustment": "0.00000001",
-    "max_stash": "10000",
-    "min_stash": "1000",
-    "random_size": "5"
-  },
-  {
-    "name": "VEO",
-    "sell_amount": "0.15",
-    "min_sell_price": "0.005",
-    "buy_amount": "0.1",
-    "max_buy_price": "0.15",
-    "ttl": "120",
-    "spread_pct_min": "1",
-    "price_adjustment": "0.00000001",
-    "max_stash": "10",
-    "min_stash": "0.1",
-    "random_size": "0.005"
-  },
-    {
-    "name": "ARO",
-    "sell_amount": "1500",
-    "min_sell_price": "0.0000001",
-    "buy_amount": "1500",
-    "max_buy_price": "0.00000015",
-    "ttl": "120",
-    "spread_pct_min": "1",
-    "price_adjustment": "0.00000000",
-    "max_stash": "20000",
-    "min_stash": "10000",
-    "random_size": "20"
-  }
-]
-```
+[Available here](config.json)
+
 ![alt text](thumb.png "Thumbnail")

@@ -12,7 +12,7 @@ from dateutil import parser
 
 from auth import QtradeAuth
 
-DEBUG = False
+DEBUG = True
 DEMO = False
 DEMO_MARKETS = ["NYZO", "BIS"]
 
@@ -103,7 +103,8 @@ class Config:
         name,
         sell_amount,
         buy_amount,
-        ttl,
+        buy_longevity,
+        sell_longevity,
         spread_pct_min,
         price_adjustment,
         max_buy_price,
@@ -121,7 +122,8 @@ class Config:
         else:
             self.sell_amount = float(sell_amount)
         self.buy_amount = float(buy_amount)
-        self.order_ttl = int(ttl)
+        self.buy_longevity = int(buy_longevity)
+        self.sell_longevity = int(sell_longevity)
         self.spread_pct_min = float(spread_pct_min)
         self.market_api = None
         self.refresh_api()
@@ -239,6 +241,15 @@ def sell(conf, pair_market):
     # place a sell order
 
 
+def pick_longevity_from_type(order_type, conf):
+    if order_type == "buy_limit":
+        return conf.buy_longevity
+    elif order_type == "sell_limit":
+        return conf.sell_longevity
+    else:
+        return None
+
+
 def loop_pair_orders(conf, pair_orders):
     # go through orders
     for order in pair_orders.open_orders:
@@ -247,9 +258,11 @@ def loop_pair_orders(conf, pair_orders):
             order_id = int(order["id"])
             order_type = order["order_type"]
             age_of_order = age(order["created_at"])
-            if age_of_order > conf.order_ttl:
+
+            longevity = pick_longevity_from_type(order_type, conf)
+            if age_of_order > longevity:
                 log.warning(
-                    f"Removing old {order_type} order {order_id}, ({age_of_order}/{conf.order_ttl}) seconds old"
+                    f"Removing old {order_type} order {order_id}, ({age_of_order}/{longevity}) seconds old"
                 )
 
                 req = {"id": order_id}
@@ -263,7 +276,7 @@ def loop_pair_orders(conf, pair_orders):
                         conf.orders_placed.remove(entry)
             else:
                 log.warning(
-                    f"{order_type} order {order_id} retained, {age_of_order}/{conf.order_ttl} seconds old"
+                    f"{order_type} order {order_id} retained, {age_of_order}/{longevity} seconds old"
                 )
     # go through orders
 
@@ -319,7 +332,8 @@ if __name__ == "__main__":
                     name=currency["name"],
                     sell_amount=currency["sell_amount"],
                     buy_amount=currency["buy_amount"],
-                    ttl=currency["ttl"],
+                    buy_longevity=currency["buy_longevity"],
+                    sell_longevity=currency["sell_longevity"],
                     spread_pct_min=currency["spread_pct_min"],
                     price_adjustment=float(currency["price_adjustment"]),
                     max_buy_price=currency["max_buy_price"],
@@ -340,7 +354,7 @@ if __name__ == "__main__":
         try:
             for conf in active_currencies:
                 if DEMO and conf.name not in DEMO_MARKETS:
-                    print("Demo mode active, skipping market")
+                    log.warning("Demo mode active, skipping market")
                     break
 
                 log.warning(f"Working on {conf.pair}")
@@ -384,7 +398,7 @@ if __name__ == "__main__":
                 time.sleep(conf.end_pause)
 
         except Exception as e:
-            print(f"Exception {e}")
+            log.warning(f"Exception {e}")
             if DEBUG:
                 raise
 
