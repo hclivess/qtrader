@@ -9,8 +9,9 @@
     "spread_pct_min": "1",
     "price_adjustment": "0.00000001",
     "max_stash": "5000",
-    "min_stash": "500",
-    "random_size": "5"
+    "min_stash": "250",
+    "random_size": "5",
+    "end_pause": "3"
   },
   {
     "name": "NYZO",
@@ -23,7 +24,8 @@
     "price_adjustment": "0.00000001",
     "max_stash": "10000",
     "min_stash": "1000",
-    "random_size": "5"
+    "random_size": "5",
+    "end_pause": "3"
   },
   {
     "name": "VEO",
@@ -36,9 +38,10 @@
     "price_adjustment": "0.00000001",
     "max_stash": "10",
     "min_stash": "0.1",
-    "random_size": "0.005"
+    "random_size": "0.005",
+    "end_pause": "3"
   },
-    {
+  {
     "name": "ARO",
     "sell_amount": "1500",
     "min_sell_price": "0.00000010",
@@ -49,7 +52,8 @@
     "price_adjustment": "0.00000000",
     "max_stash": "20000",
     "min_stash": "10000",
-    "random_size": "20"
+    "random_size": "20",
+    "end_pause": "3"
   },
   {
     "name": "PASC",
@@ -62,6 +66,21 @@
     "price_adjustment": "0.00000001",
     "max_stash": "2000",
     "min_stash": "0",
-    "random_size": "20"
+    "random_size": "20",
+    "end_pause": "3"
+  },
+  {
+    "name": "SNOW",
+    "sell_amount": "200",
+    "min_sell_price": "0.00002500",
+    "buy_amount": "200",
+    "max_buy_price": "0.00003500",
+    "ttl": "120",
+    "spread_pct_min": "1",
+    "price_adjustment": "0.00000001",
+    "max_stash": "2000",
+    "min_stash": "0",
+    "random_size": "20",
+    "end_pause": "3"
   }
 ]

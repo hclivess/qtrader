@@ -110,7 +110,8 @@ class Config:
         min_sell_price,
         max_stash,
         min_stash,
-        random_size
+        random_size,
+        end_pause
     ):
         self.orders_placed = []
         self.name = name
@@ -133,6 +134,7 @@ class Config:
         self.max_stash = float(max_stash)
         self.min_stash = float(min_stash)
         self.random_size = float(random_size)
+        self.end_pause = float(end_pause)
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -324,7 +326,8 @@ if __name__ == "__main__":
                     min_sell_price=currency["min_sell_price"],
                     max_stash=currency["max_stash"],
                     min_stash=currency["min_stash"],
-                    random_size=currency["random_size"]
+                    random_size=currency["random_size"],
+                    end_pause=currency["end_pause"]
                 )
             )
 
@@ -377,8 +380,8 @@ if __name__ == "__main__":
                     buy(conf, pair_market)
 
                 loop_pair_orders(conf, pair_orders)  # pair conf is different
-                log.warning("Taking a break for 10s")
-                time.sleep(10)
+                log.warning(f"Taking a break for {conf.end_pause} seconds")
+                time.sleep(conf.end_pause)
 
         except Exception as e:
             print(f"Exception {e}")
