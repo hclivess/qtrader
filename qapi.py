@@ -98,45 +98,30 @@ class Balance:
 
 
 class Config:
-    def __init__(
-        self,
-        name,
-        sell_amount,
-        buy_amount,
-        buy_longevity,
-        sell_longevity,
-        spread_pct_min,
-        price_adjustment,
-        max_buy_price,
-        min_sell_price,
-        max_stash,
-        min_stash,
-        random_size,
-        end_pause
-    ):
+    def __init__(self, **kwargs):
         self.orders_placed = []
-        self.name = name
-        self.pair = f"{name}_BTC"
+        self.name = kwargs["name"]
+        self.pair = f"{kwargs['name']}_BTC"
         if DEMO:
             self.sell_amount = 0
         else:
-            self.sell_amount = float(sell_amount)
-        self.buy_amount = float(buy_amount)
-        self.buy_longevity = int(buy_longevity)
-        self.sell_longevity = int(sell_longevity)
-        self.spread_pct_min = float(spread_pct_min)
+            self.sell_amount = float(kwargs["sell_amount"])
+        self.buy_amount = float(kwargs["buy_amount"])
+        self.buy_longevity = int(kwargs["buy_longevity"])
+        self.sell_longevity = int(kwargs["sell_longevity"])
+        self.spread_pct_min = float(kwargs["spread_pct_min"])
         self.market_api = None
         self.refresh_api()
         self.market_id = self.market_api["data"]["id"]
-        self.price_adjustment = float(price_adjustment)
+        self.price_adjustment = float(kwargs["price_adjustment"])
         log.warning("market_api", self.market_api)
-        self.max_buy_price = float(max_buy_price)
-        self.min_sell_price = float(min_sell_price)
+        self.max_buy_price = float(kwargs["max_buy_price"])
+        self.min_sell_price = float(kwargs["min_sell_price"])
         self.last_refreshed = None
-        self.max_stash = float(max_stash)
-        self.min_stash = float(min_stash)
-        self.random_size = float(random_size)
-        self.end_pause = float(end_pause)
+        self.max_stash = float(kwargs["max_stash"])
+        self.min_stash = float(kwargs["min_stash"])
+        self.random_size = float(kwargs["random_size"])
+        self.end_pause = float(kwargs["end_pause"])
 
     def count_orders(self):
         self.orders_count = len(self.orders_placed)
@@ -173,7 +158,9 @@ def buy(conf, pair_market):
 
         # log.warning(balance["balance"])
 
-        elif btc.balance >= buy_value * final_price:  # if one can afford to buy
+        elif (
+            btc.balance >= buy_value * final_price
+        ):  # if one can afford to buy, sometimes fails because we can't refresh api on every order
 
             # discount = percentage(trade_price_percentage, pair_market.bid)
             req = {
@@ -196,9 +183,13 @@ def buy(conf, pair_market):
 
     # place a buy order
 
+
 def randomize(random_size_value):
-    randomized = float("%.4f" % random.uniform((-random_size_value), (random_size_value)))
+    randomized = float(
+        "%.4f" % random.uniform((-random_size_value), (random_size_value))
+    )
     return randomized
+
 
 def sell(conf, pair_market):
     log.warning("Checking to place a sell order")
@@ -290,7 +281,9 @@ def market_stats(conf, pair_market):
     log.warning(f"market_balance {pair_orders.market_balance}")
     log.warning(f"open_orders {pair_orders.open_orders}")
 
-    log.warning(f"api last refresh: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(conf.last_refreshed))}")
+    log.warning(
+        f"api last refresh: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(conf.last_refreshed))}"
+    )
     log.warning(f"spread: {'%.8f' % pair_market.spread}")
     log.warning(f"ask: {'%.8f' % pair_market.ask}")
     log.warning(f"bid: {'%.8f' % pair_market.bid}")
@@ -341,7 +334,7 @@ if __name__ == "__main__":
                     max_stash=currency["max_stash"],
                     min_stash=currency["min_stash"],
                     random_size=currency["random_size"],
-                    end_pause=currency["end_pause"]
+                    end_pause=currency["end_pause"],
                 )
             )
 
@@ -363,8 +356,6 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
-
-
                 order_api = api.get(
                     f"https://api.qtrade.io/v1/user/market/{conf.pair}"
                 ).json()
@@ -375,8 +366,6 @@ if __name__ == "__main__":
                 pair_orders.market_balance = order_api["data"]["market_balance"]
                 # pair_orders.open_orders = order_api["data"]["open_orders"]  # old way
                 pair_orders.open_orders = api.auth_native.orders(open=True)
-
-
 
                 market_stats(conf, pair_market)
 
