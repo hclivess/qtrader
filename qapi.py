@@ -54,10 +54,14 @@ class Order:
 
 class PairOrders:
     def __init__(self):
-        self.base_balance = None
-        self.closed_orders = None
-        self.market_balance = None
-        self.open_orders = None
+        self.api = api.get(
+            f"https://api.qtrade.io/v1/user/market/{conf.pair}"
+        ).json()
+
+        self.base_balance = self.api["data"]["base_balance"]
+        self.closed_orders = self.api["data"]["closed_orders"]
+        self.market_balance = self.api["data"]["market_balance"]
+        self.open_orders = api.auth_native.orders(open=True)
 
 
 class PairMarket:
@@ -356,16 +360,7 @@ if __name__ == "__main__":
                 # move data to object
                 pair_market = PairMarket(conf)
 
-                order_api = api.get(
-                    f"https://api.qtrade.io/v1/user/market/{conf.pair}"
-                ).json()
                 pair_orders = PairOrders()
-
-                pair_orders.base_balance = order_api["data"]["base_balance"]
-                pair_orders.closed_orders = order_api["data"]["closed_orders"]
-                pair_orders.market_balance = order_api["data"]["market_balance"]
-                # pair_orders.open_orders = order_api["data"]["open_orders"]  # old way
-                pair_orders.open_orders = api.auth_native.orders(open=True)
 
                 market_stats(conf, pair_market)
 
