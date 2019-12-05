@@ -369,6 +369,8 @@ if __name__ == "__main__":
 
                 market_stats(conf, pair_market)
 
+                loop_pair_orders(conf, pair_orders)  # pair conf is different
+
                 if pair_market.spread_pct < conf.spread_pct_min:
                     log.warning(
                         f"No new orders, spread {pair_market.spread_pct} too small"
@@ -382,7 +384,6 @@ if __name__ == "__main__":
                     sell(conf, pair_market)
                     buy(conf, pair_market)
 
-                loop_pair_orders(conf, pair_orders)  # pair conf is different
                 log.warning(f"Taking a break for {conf.end_pause} seconds")
                 time.sleep(conf.end_pause)
 
