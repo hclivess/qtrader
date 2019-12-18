@@ -18,3 +18,4 @@ print(client_native.orders(open=False))
 print(client_native.orders(older_than=25))
 # Print all orders after ID 25
 print(client_native.orders(newer_than=25))
+client_native.balances()

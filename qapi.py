@@ -345,8 +345,11 @@ if __name__ == "__main__":
     # load currencies
 
     while True:
-        me = api.get("https://api.qtrade.io/v1/user/me").json()
-        log.warning(me)
+        try:
+            me = api.get("https://api.qtrade.io/v1/user/me").json()
+            log.warning(me)
+        except Exception as e:
+            log.warning(f"Exception {e}")
 
         try:
             for conf in active_currencies:
