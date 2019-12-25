@@ -348,10 +348,7 @@ if __name__ == "__main__":
         try:
             me = api.get("https://api.qtrade.io/v1/user/me").json()
             log.warning(me)
-        except Exception as e:
-            log.warning(f"Exception {e}")
 
-        try:
             for conf in active_currencies:
                 if DEMO and conf.name not in DEMO_MARKETS:
                     log.warning("Demo mode active, skipping market")
